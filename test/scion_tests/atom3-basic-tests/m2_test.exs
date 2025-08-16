@@ -4,7 +4,7 @@ defmodule SCIONTest.Atom3BasicTests.M2Test do
   @tag spec: "atom3_basic_tests"
   test "m2" do
     xml = """
-    <ns0:scxml 
+    <ns0:scxml
         datamodel="ecmascript"
         xmlns:ns0="http://www.w3.org/2005/07/scxml" version="1.0"  name="root">
       <ns0:state id="AB">

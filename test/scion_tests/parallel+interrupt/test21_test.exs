@@ -20,8 +20,8 @@ defmodule :"Elixir.Test.StateChart.Scion.Parallel+interrupt.Test21" do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <!-- orthogonal preemptions 
-    here we have multiple interrupt conflicts, originating from d1 and c. 
+    <!-- orthogonal preemptions
+    here we have multiple interrupt conflicts, originating from d1 and c.
     transition from c will win, because it originates in a parallel region with an earlier document order; even though the transition originating from d1 is deeper in the hierarchy.   -->
     <scxml
         datamodel="ecmascript"

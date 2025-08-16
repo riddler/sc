@@ -21,9 +21,9 @@ defmodule SCIONTest.AssignCurrentSmallStep.Test3Test do
        limitations under the License.
     -->
     <!--
-         This test demonstrates the way the memory model semantics interact with transition order and concurrency semantics. Here, transitions originating from c1 and b1 will be taken in the same small-step, however i will not be updated until the end of that small step. The transitions actions are evaluated in document order, though, so the outcome is deterministic, so the assignment action on the transition originating from c1 will win. 
+         This test demonstrates the way the memory model semantics interact with transition order and concurrency semantics. Here, transitions originating from c1 and b1 will be taken in the same small-step, however i will not be updated until the end of that small step. The transitions actions are evaluated in document order, though, so the outcome is deterministic, so the assignment action on the transition originating from c1 will win.
     -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         version="1.0">

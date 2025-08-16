@@ -7,13 +7,20 @@ defmodule SC.State do
     :id,
     :initial,
     states: [],
-    transitions: []
+    transitions: [],
+    # Location information for validation
+    source_location: nil,
+    id_location: nil,
+    initial_location: nil
   ]
 
   @type t :: %__MODULE__{
           id: String.t(),
           initial: String.t() | nil,
           states: [SC.State.t()],
-          transitions: [SC.Transition.t()]
+          transitions: [SC.Transition.t()],
+          source_location: map() | nil,
+          id_location: map() | nil,
+          initial_location: map() | nil
         }
 end

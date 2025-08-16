@@ -20,16 +20,16 @@ defmodule :"Elixir.Test.StateChart.Scion.Parallel+interrupt.Test7b" do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <!-- 
-      orthogonal preemption - inner or states interrupt one-another 
+    <!--
+      orthogonal preemption - inner or states interrupt one-another
         conflict between transition originating in state c, and transitions originating in e1 and f1, as transition from c interrupt the others
 
-      In SCION <= 4:   
+      In SCION <= 4:
         transitions in e1 and f1 will win, as they are deeper in the hierarchy (even though they come later in document order
 
-      In SCION > 4 (SCXML semantics): 
+      In SCION > 4 (SCXML semantics):
         transition originating in e1 and f1 will win, as orthogonal component d precedes orthogonal component c in document order
-    --> 
+    -->
     <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"

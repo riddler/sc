@@ -20,11 +20,11 @@ defmodule :"Elixir.Test.StateChart.Scion.Parallel+interrupt.Test10" do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <!-- 
+    <!--
     no conflict here
     initial: [b1,b2]
     after t: [c1,c2]
-    --> 
+    -->
     <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"

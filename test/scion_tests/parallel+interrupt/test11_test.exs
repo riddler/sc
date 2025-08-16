@@ -5,10 +5,10 @@ defmodule :"Elixir.Test.StateChart.Scion.Parallel+interrupt.Test11" do
   test "test11" do
     xml = """
     <?xml version="1.0" encoding="UTF-8"?>
-    <!-- 
+    <!--
     initial: [b1,b2]
     after t: [d]
-    --> 
+    -->
     <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"

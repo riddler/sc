@@ -21,11 +21,11 @@ defmodule SCIONTest.CondJs.TestConditionalTransitionTest do
      * See the License for the specific language governing permissions and
      * limitations under the License.
     -->
-    <!-- 
+    <!--
     This is to test transitions with guard conditions, and multiple
-    transitions originating from the same state. 
+    transitions originating from the same state.
     -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         version="1.0"
@@ -55,7 +55,7 @@ defmodule SCIONTest.CondJs.TestConditionalTransitionTest do
 
         <state id="d2"/>
 
-        <!-- two transitions with guard conditions; 
+        <!-- two transitions with guard conditions;
             first has priority, but will fail, so second transition should be taken,
             end in f2 -->
         <state id="e1">

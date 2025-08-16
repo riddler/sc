@@ -19,7 +19,7 @@ defmodule SCIONTest.Assign.AssignObjLiteralTest do
 
       <state id="s1">
         <transition event="pass" target="pass"/>
-        <onentry>    
+        <onentry>
           <log expr="'Starting session ' + _sessionid" label="TEST"/>
           <assign location="o1" expr="{p1: 'v1', p2: 'v2'}"/>
         </onentry>

@@ -5,10 +5,10 @@ defmodule :"Elixir.Test.StateChart.Scion.Parallel+interrupt.Test3" do
   test "test3" do
     xml = """
     <?xml version="1.0" encoding="UTF-8"?>
-    <!-- 
-    orthogonal preemption - inner or states interrupt one-another 
+    <!--
+    orthogonal preemption - inner or states interrupt one-another
     in our semantics, source state is at the same level of hierarchy, so document order will resolve conflict. a1 will win.
-    --> 
+    -->
     <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"

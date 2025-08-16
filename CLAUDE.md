@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Testing:**
 - `mix test` - Run all tests
+- `mix test test/sc/location_test.exs` - Run location tracking tests
 - `mix test test/sc/parser/scxml_test.exs` - Run specific SCXML parser tests
 
 **Development:**
@@ -36,21 +37,34 @@ Also use this initial Elixir implementation as reference: https://github.com/cam
 - **`SC.DataElement`** - Datamodel elements with required `id` and optional `expr` and `src` attributes
 
 ### Parsers
-- **`SC.Parser.SCXML`** - Main SCXML parser using SweetXml library
-  - Parses XML strings into `SC.Document` structs
-  - Handles namespace declarations (custom xmlns extraction)
+- **`SC.Parser.SCXML`** - Main SCXML parser using Saxy SAX parser for accurate location tracking
+  - Parses XML strings into `SC.Document` structs with precise source location information
+  - Event-driven SAX parsing for better memory efficiency and location tracking
+  - Handles namespace declarations and XML attributes correctly
   - Supports nested states and hierarchical structures
   - Converts empty XML attributes to `nil` for cleaner data representation
   - Returns `{:ok, document}` or `{:error, reason}` tuples
+- **`SC.Parser.SCXMLHandler`** - SAX event handler for SCXML parsing
+  - Implements `Saxy.Handler` behavior for processing XML events
+  - Tracks element occurrences and position information during parsing
+  - Manages element stack for proper hierarchical document construction
 
 ### Test Infrastructure
 - **`SC.Case`** - Test case template module for SCXML testing
   - Provides `test_scxml/4` function for testing state machine behavior
   - Used by both SCION and W3C test suites
 
+### Location Tracking
+All parsed SCXML elements include precise source location information for validation error reporting:
+
+- **Element locations**: Each parsed element (`SC.Document`, `SC.State`, `SC.Transition`, `SC.DataElement`) includes a `source_location` field with line/column information
+- **Attribute locations**: Individual attributes have dedicated location fields (e.g., `name_location`, `id_location`, `event_location`) for precise error reporting
+- **Multiline support**: Accurately tracks locations for both single-line and multiline XML element definitions
+- **SAX-based tracking**: Uses Saxy's event-driven parsing to maintain position information throughout the parsing process
+
 ## Dependencies
 
-- **`sweet_xml`** (~> 0.7) - XML parsing library built on `:xmerl` with Elixir-friendly API
+- **`saxy`** (~> 1.6) - Fast, memory-efficient SAX XML parser with position tracking support
 
 ## Tests
 
@@ -73,6 +87,12 @@ This project includes comprehensive test coverage:
 - Tests parsing of simple documents, transitions, datamodels, nested states
 - Validates error handling for invalid XML
 - Ensures proper attribute handling (nil for empty values)
+
+### Location Tracking Tests (`test/sc/location_test.exs`)
+- Tests for precise source location tracking in SCXML documents
+- Validates line number accuracy for elements and attributes
+- Tests both single-line and multiline XML element definitions
+- Ensures proper location tracking for nested elements and datamodel elements
 
 ## Code Style
 
@@ -99,12 +119,14 @@ XML content within triple quotes uses 4-space base indentation.
 ## Implementation Status
 
 ✅ **Completed:**
-- Core data structures (Document, State, Transition, DataElement)
-- Basic SCXML parser with SweetXml
+- Core data structures (Document, State, Transition, DataElement) with location tracking
+- SCXML parser using Saxy SAX parser for accurate position tracking
 - Comprehensive test suite integration (SCION + W3C)
 - Test infrastructure with SC.Case module
-- XML parsing with namespace support
+- XML parsing with namespace support and precise source location tracking
 - Error handling for malformed XML
+- Location tracking for elements and attributes (line numbers for validation errors)
+- Support for both single-line and multiline XML element definitions
 
 🚧 **Future Extensions:**
 - More executable content elements (`<onentry>`, `<onexit>`, `<raise>`, `<assign>`)

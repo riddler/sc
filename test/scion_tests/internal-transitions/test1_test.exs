@@ -20,7 +20,7 @@ defmodule SCIONTest.InternalTransitions.Test1Test do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <scxml 
+    <scxml
         xmlns="http://www.w3.org/2005/07/scxml"
         version="1.0"
         datamodel="ecmascript">
@@ -85,7 +85,7 @@ defmodule SCIONTest.InternalTransitions.Test1Test do
         </parallel>
 
         <state id="c">
-            <!-- exited a2, a, p (5 + 1 + 1 + 1 = 8) --> 
+            <!-- exited a2, a, p (5 + 1 + 1 + 1 = 8) -->
             <transition target="d" event="t3" cond="x === 8"/>
         </state>
 

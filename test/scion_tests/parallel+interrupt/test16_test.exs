@@ -20,11 +20,11 @@ defmodule :"Elixir.Test.StateChart.Scion.Parallel+interrupt.Test16" do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <!-- 
-    orthogonal preemption - inner or states interrupt one-another 
+    <!--
+    orthogonal preemption - inner or states interrupt one-another
     illustrates target interrupt
     in our semantics, source state is at the same level of hierarchy, so document order will resolve conflict. a1 will win.
-    --> 
+    -->
     <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"

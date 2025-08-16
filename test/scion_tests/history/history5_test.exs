@@ -20,9 +20,9 @@ defmodule SCIONTest.History.History5Test do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <!-- 
+    <!--
     illustrates deep history with many parallel states
-    --> 
+    -->
     <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"

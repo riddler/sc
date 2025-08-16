@@ -23,7 +23,7 @@ defmodule SCIONTest.AssignCurrentSmallStep.Test2Test do
     <!--
          This is another test that illustrates how possibly infinite loops may be created. Here, without the counter and the cond, the big-step would never complete.
          -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         version="1.0">

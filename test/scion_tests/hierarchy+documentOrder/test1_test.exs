@@ -20,7 +20,7 @@ defmodule :"Elixir.Test.StateChart.Scion.Hierarchy+documentOrder.Test1" do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         version="1.0">

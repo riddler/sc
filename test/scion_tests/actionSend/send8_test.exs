@@ -22,11 +22,11 @@ defmodule SCIONTest.ActionSend.Send8Test do
     -->
     <!--
         In SCION < 3 semantics:
-          Illustrates one of the edge cases of these semantics. Followup to send7. If we target, not the outer composite state, but the inner state directly, the event will be available in the next small step. This is an example of the way in which these semantics break the synchrony hypthosesis. 
+          Illustrates one of the edge cases of these semantics. Followup to send7. If we target, not the outer composite state, but the inner state directly, the event will be available in the next small step. This is an example of the way in which these semantics break the synchrony hypthosesis.
         In SCION >= 3 semantics (SCXML Appendix D semantics):
           The state machine will enter state 'b1', then transition to target 'b3' will be selected over transition to target 'b2', because transition to target 'b3' is an eventless transition. In the Algorithm for SCXML interpretation, transitions without events are selected before transitions with events; and transitions with events will only be selected if no eventless transitions are selected.
          -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         initial="a"

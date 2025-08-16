@@ -20,13 +20,13 @@ defmodule :"Elixir.Test.StateChart.Scion.Parallel+interrupt.Test6" do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <!-- 
-         orthogonal preemption - inner or states interrupt one-another 
+    <!--
+         orthogonal preemption - inner or states interrupt one-another
         no conflicts here
         initial configuration: [g,e1,f1]
         given event t: [h,e2,f2]
     TODO: move this to basic parallel group
-    --> 
+    -->
     <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"

@@ -28,7 +28,7 @@ defmodule SCIONTest.ActionSend.Send9Test do
         Note the difference between this test and send7. These tests are no longer equivalent.
         This is a semantic change from SCION 2.0
          -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         initial="a"

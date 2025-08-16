@@ -23,7 +23,7 @@ defmodule SCIONTest.History.History4Test do
     <!--
          illustrates both deep and shallow history, working in both AND and OR states
     -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         version="1.0"

@@ -20,7 +20,7 @@ defmodule SCIONTest.Parallel.Test2Test do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <!-- nested orthogonality 
+    <!-- nested orthogonality
     initial configuration: [s3,s4,s7,s8]
     after event t: [s5,s6,s9,s10]
     -->

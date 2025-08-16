@@ -20,9 +20,9 @@ defmodule :"Elixir.Test.StateChart.Scion.Parallel+interrupt.Test4" do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <!-- 
-         orthogonal preemption - inner or states interrupt one-another 
-    --> 
+    <!--
+         orthogonal preemption - inner or states interrupt one-another
+    -->
     <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"

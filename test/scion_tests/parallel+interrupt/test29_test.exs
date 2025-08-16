@@ -20,7 +20,7 @@ defmodule :"Elixir.Test.StateChart.Scion.Parallel+interrupt.Test29" do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <!-- orthogonal preemption - outer and state interrupts inner or state 
+    <!-- orthogonal preemption - outer and state interrupts inner or state
     inner transition will have priority, so final state will be a1.
     -->
     <scxml

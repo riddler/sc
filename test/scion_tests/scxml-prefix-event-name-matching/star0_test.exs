@@ -20,7 +20,7 @@ defmodule SCIONTest.ScxmlPrefixEventNameMatching.Star0Test do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         version="1.0">

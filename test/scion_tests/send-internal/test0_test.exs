@@ -20,7 +20,7 @@ defmodule SCIONTest.SendInternal.Test0Test do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         version="1.0">
@@ -35,15 +35,15 @@ defmodule SCIONTest.SendInternal.Test0Test do
             <transition target="b" event="t">
                 <send eventexpr="'s1'" namelist="foo bar" target="#_internal">
                     <param name="bif" location="bat"/>
-                    <param name="belt" expr="4"/> 
+                    <param name="belt" expr="4"/>
                 </send>
             </transition>
         </state>
 
         <state id="b">
-            <transition event="s1" target="c" 
-                cond="_event.data.foo === 1 &amp;&amp; 
-                    _event.data.bar === 2 &amp;&amp; 
+            <transition event="s1" target="c"
+                cond="_event.data.foo === 1 &amp;&amp;
+                    _event.data.bar === 2 &amp;&amp;
                     _event.data.bif === 3 &amp;&amp;
                     _event.data.belt === 4">
 
@@ -58,7 +58,7 @@ defmodule SCIONTest.SendInternal.Test0Test do
 
 
         <state id="c">
-            <transition event="s2" target="d" 
+            <transition event="s2" target="d"
                 cond="_event.data === 'More content.'"/>
 
             <transition event="s2" target="f">
@@ -68,7 +68,7 @@ defmodule SCIONTest.SendInternal.Test0Test do
 
         <state id="d"/>
 
-        <state id="f"/> 
+        <state id="f"/>
     </scxml>
     """
 

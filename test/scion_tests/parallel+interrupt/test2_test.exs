@@ -20,10 +20,10 @@ defmodule :"Elixir.Test.StateChart.Scion.Parallel+interrupt.Test2" do
        See the License for the specific language governing permissions and
        limitations under the License.
     -->
-    <!-- 
+    <!--
     orthogonal preemption - transition originating at inner OR state interrupts transition originating at orthogonal OR state.
     again, first OR state should win, as the transitions originate at the same level of hierarchy, and wins by document order
-    --> 
+    -->
     <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"

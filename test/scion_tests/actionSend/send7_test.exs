@@ -23,13 +23,13 @@ defmodule SCIONTest.ActionSend.Send7Test do
     <!--
         In SCION < 3 semantics:
           Illustrates one of the edge cases of these semantics. In SCION 2.0, "inital" attribute is no longer normalized
-          such that it is treated as a transition into an initial state. Instead, transition from "a" to "b1" is taken 
+          such that it is treated as a transition into an initial state. Instead, transition from "a" to "b1" is taken
           in the same small-step.
           Thus event "s" is in the inner queue when machine enters "b1", which causes transition to be taken to "b1".
         In SCION >= 3 semantics (SCXML Appendix D semantics):
           The state machine will enter state 'b1', then transition to target 'b3' will be selected over transition to target 'b2', because transition to target 'b3' is an eventless transition. In the Algorithm for SCXML interpretation, transitions without events are selected before transitions with events; and transitions with events will only be selected if no eventless transitions are selected.
          -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         initial="a"

@@ -21,10 +21,10 @@ defmodule SCIONTest.In.TestInPredicateTest do
      * See the License for the specific language governing permissions and
      * limitations under the License.
     -->
-    <!-- 
-    This is to test the use of the In() predicate. 
+    <!--
+    This is to test the use of the In() predicate.
     -->
-    <scxml 
+    <scxml
         datamodel="ecmascript"
         xmlns="http://www.w3.org/2005/07/scxml"
         initial="p1"
