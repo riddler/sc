@@ -3,14 +3,14 @@ defmodule SC.Parser.SCXML do
   Parser for SCXML documents using Saxy SAX parser with accurate location tracking.
   """
 
-  alias SC.Parser.SCXMLHandler
+  alias SC.Parser.SCXML.Handler
 
   @doc """
   Parse an SCXML string into an SC.Document struct using Saxy parser.
   """
   @spec parse(String.t()) :: {:ok, SC.Document.t()} | {:error, term()}
   def parse(xml_string) do
-    initial_state = %SCXMLHandler{
+    initial_state = %Handler{
       stack: [],
       result: nil,
       current_element: nil,
@@ -20,7 +20,7 @@ defmodule SC.Parser.SCXML do
       element_counts: %{}
     }
 
-    case Saxy.parse_string(xml_string, SCXMLHandler, initial_state) do
+    case Saxy.parse_string(xml_string, Handler, initial_state) do
       {:ok, result} -> {:ok, result}
       {:error, error} -> {:error, error}
     end

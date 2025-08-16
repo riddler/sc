@@ -11,6 +11,8 @@ defmodule SC.Document do
     :xmlns,
     states: [],
     datamodel_elements: [],
+    # Document order for deterministic processing
+    document_order: nil,
     # Location information for validation
     source_location: nil,
     name_location: nil,
@@ -27,6 +29,7 @@ defmodule SC.Document do
           xmlns: String.t() | nil,
           states: [SC.State.t()],
           datamodel_elements: [SC.DataElement.t()],
+          document_order: integer() | nil,
           source_location: map() | nil,
           name_location: map() | nil,
           initial_location: map() | nil,

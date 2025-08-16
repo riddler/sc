@@ -1,6 +1,6 @@
 defmodule SC.MixProject do
   use Mix.Project
-  
+
   @app :sc
   @version "0.1.0"
   @deps [

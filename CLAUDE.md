@@ -4,6 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+**Code Verification Workflow:**
+When verifying code changes, always follow this sequence:
+1. `mix format` - Auto-fix formatting issues (trailing whitespace, final newlines, etc.)
+2. `mix coveralls` - Ensure functionality and maintain at least 90% test coverage
+3. `mix credo --strict` - Run static code analysis only after tests pass
+
 **Testing:**
 - `mix coveralls` - Run all tests with coverage reporting (ensure at least 90% coverage)
 - `mix coveralls.detail` - Run tests with detailed coverage report showing uncovered lines
@@ -15,9 +21,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `mix deps.get` - Install dependencies
 - `mix compile` - Compile the project
 - `mix docs` - Generate documentation
-- `mix credo --strict` - Run static code analysis with strict mode (always run with tests)
-- `mix format` - Format code according to Elixir standards
+- `mix format` - Format code according to Elixir standards (run first for code verification)
 - `mix format --check-formatted` - Check if code is properly formatted
+- `mix credo --strict` - Run static code analysis with strict mode (run last after tests pass)
 
 ## Architecture
 

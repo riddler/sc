@@ -7,6 +7,8 @@ defmodule SC.Transition do
     :event,
     :target,
     :cond,
+    # Document order for deterministic processing
+    document_order: nil,
     # Location information for validation
     source_location: nil,
     event_location: nil,
@@ -18,6 +20,7 @@ defmodule SC.Transition do
           event: String.t() | nil,
           target: String.t() | nil,
           cond: String.t() | nil,
+          document_order: integer() | nil,
           source_location: map() | nil,
           event_location: map() | nil,
           target_location: map() | nil,

@@ -17,11 +17,13 @@ defmodule SC.Parser.SCXMLTest do
       assert doc.xmlns == "http://www.w3.org/2005/07/scxml"
       assert doc.version == "1.0"
       assert doc.initial == "a"
+      assert doc.document_order == 1
       assert length(doc.states) == 1
 
       state = hd(doc.states)
       assert state.id == "a"
       assert state.initial == nil
+      assert state.document_order == 2
       assert state.states == []
       assert state.transitions == []
     end
@@ -257,6 +259,41 @@ defmodule SC.Parser.SCXMLTest do
       """
 
       assert {:ok, %Document{}} = SCXML.parse(xml)
+    end
+
+    test "assigns document_order based on element counts" do
+      xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="a">
+        <datamodel>
+          <data id="x" expr="0"/>
+          <data id="y" expr="1"/>
+        </datamodel>
+        <state id="a">
+          <transition event="go" target="b"/>
+        </state>
+        <state id="b"/>
+      </scxml>
+      """
+
+      assert {:ok, %Document{} = doc} = SCXML.parse(xml)
+
+      # Document (scxml) should have document_order of 1
+      assert doc.document_order == 1
+
+      # Data elements should have document_order of 3 and 4
+      [data1, data2] = doc.datamodel_elements
+      assert data1.document_order == 3
+      assert data2.document_order == 4
+
+      # States should have document_order of 5 and 7
+      [state_a, state_b] = doc.states
+      assert state_a.document_order == 5
+      assert state_b.document_order == 7
+
+      # Transition should have document_order of 6
+      transition = hd(state_a.transitions)
+      assert transition.document_order == 6
     end
   end
 end

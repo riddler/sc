@@ -7,6 +7,8 @@ defmodule SC.DataElement do
     :id,
     :expr,
     :src,
+    # Document order for deterministic processing
+    document_order: nil,
     # Location information for validation
     source_location: nil,
     id_location: nil,
@@ -18,6 +20,7 @@ defmodule SC.DataElement do
           id: String.t(),
           expr: String.t() | nil,
           src: String.t() | nil,
+          document_order: integer() | nil,
           source_location: map() | nil,
           id_location: map() | nil,
           expr_location: map() | nil,
