@@ -6,13 +6,20 @@ defmodule SC.Parser.SCXMLHandler do
   @behaviour Saxy.Handler
 
   defstruct [
-    :stack,      # Stack of parent elements for hierarchy tracking
-    :result,     # Final SC.Document result
-    :current_element,  # Current element being processed
-    :line,       # Current line number
-    :column,     # Current column number
-    :xml_string,  # Original XML string for position tracking
-    :element_counts  # Map tracking how many of each element type have been processed
+    # Stack of parent elements for hierarchy tracking
+    :stack,
+    # Final SC.Document result
+    :result,
+    # Current element being processed
+    :current_element,
+    # Current line number
+    :line,
+    # Current column number
+    :column,
+    # Original XML string for position tracking
+    :xml_string,
+    # Map tracking how many of each element type have been processed
+    :element_counts
   ]
 
   @impl Saxy.Handler
@@ -36,15 +43,20 @@ defmodule SC.Parser.SCXMLHandler do
     case name do
       "scxml" ->
         handle_scxml_start(attributes, location, state)
+
       "state" ->
         handle_state_start(attributes, location, state)
+
       "transition" ->
         handle_transition_start(attributes, location, state)
+
       "datamodel" ->
         handle_datamodel_start(attributes, location, state)
+
       "data" ->
         handle_data_start(attributes, location, state)
-      _ ->
+
+      _unknown_element_name ->
         # Skip unknown elements but track them in stack
         {:ok, %{state | stack: [{name, nil} | state.stack]}}
     end
@@ -55,22 +67,27 @@ defmodule SC.Parser.SCXMLHandler do
     case name do
       "scxml" ->
         {:ok, state}
+
       "state" ->
         handle_state_end(state)
+
       "transition" ->
         handle_transition_end(state)
+
       "datamodel" ->
         handle_datamodel_end(state)
+
       "data" ->
         handle_data_end(state)
-      _ ->
+
+      _unknown_element ->
         # Pop unknown element from stack
         {:ok, %{state | stack: tl(state.stack)}}
     end
   end
 
   @impl Saxy.Handler
-  def handle_event(:characters, _chars, state) do
+  def handle_event(:characters, _character_data, state) do
     # Ignore text content for now since SCXML elements don't have mixed content
     {:ok, state}
   end
@@ -84,41 +101,49 @@ defmodule SC.Parser.SCXMLHandler do
   end
 
   # Calculate approximate element position based on XML content and parsing context
-  defp calculate_element_position(xml_string, element_name, _stack, element_counts) do
+  defp calculate_element_position(xml_string, element_name, _element_stack, element_counts) do
     occurrence = Map.get(element_counts, element_name, 1)
+
     case find_element_position(xml_string, element_name, occurrence) do
       {line, column} -> %{line: line, column: column}
-      _ -> %{line: 1, column: 1}
+      _fallback -> %{line: 1, column: 1}
     end
   end
 
   # Find the position of an element by searching the XML string
   # This implementation tracks occurrences to handle multiple elements with the same name
-  defp find_element_position(xml_string, element_name, occurrence) when is_binary(xml_string) and is_binary(element_name) do
+  defp find_element_position(xml_string, element_name, occurrence)
+       when is_binary(xml_string) and is_binary(element_name) do
     lines = String.split(xml_string, "\n", parts: :infinity)
     find_element_occurrence(lines, element_name, occurrence, 1)
   end
 
-  defp find_element_position(_xml_string, _element_name, _occurrence), do: {1, 1}
+  defp find_element_position(_xml_string, _element_name, _occurrence_count), do: {1, 1}
 
-  defp find_element_occurrence([], _element_name, _occurrence, _line_num), do: {1, 1}
+  defp find_element_occurrence([], _element_name, _target_occurrence, _current_line), do: {1, 1}
 
   defp find_element_occurrence([line | rest], element_name, target_occurrence, line_num) do
     # Look for the element as a complete tag, not just substring
     # Match <element followed by space, >, /, or end of line
     element_pattern = "<#{element_name}([ />]|$)"
-    if Regex.match?(~r/#{element_pattern}/, line) do
-      if target_occurrence <= 1 do
-        column = case String.split(line, "<#{element_name}", parts: 2) do
-          [prefix | _] -> String.length(prefix) + 1
-          _ -> 1
-        end
-        {line_num, column}
-      else
+
+    cond do
+      not Regex.match?(~r/#{element_pattern}/, line) ->
+        find_element_occurrence(rest, element_name, target_occurrence, line_num + 1)
+
+      target_occurrence > 1 ->
         find_element_occurrence(rest, element_name, target_occurrence - 1, line_num + 1)
-      end
-    else
-      find_element_occurrence(rest, element_name, target_occurrence, line_num + 1)
+
+      true ->
+        column = calculate_column_position(line, element_name)
+        {line_num, column}
+    end
+  end
+
+  defp calculate_column_position(line, element_name) do
+    case String.split(line, "<#{element_name}", parts: 2) do
+      [prefix | _remaining_parts] -> String.length(prefix) + 1
+      _no_match -> 1
     end
   end
 
@@ -128,8 +153,10 @@ defmodule SC.Parser.SCXMLHandler do
     find_attribute_location(lines, attr_name, element_location.line, element_location.line)
   end
 
-  defp find_attribute_location(lines, attr_name, start_line, current_line) when current_line <= length(lines) do
+  defp find_attribute_location(lines, attr_name, start_line, current_line)
+       when current_line <= length(lines) do
     line = Enum.at(lines, current_line - 1)
+
     if line && String.contains?(line, "#{attr_name}=") do
       # Found the attribute - return this line number
       %{line: current_line, column: nil}
@@ -139,7 +166,7 @@ defmodule SC.Parser.SCXMLHandler do
     end
   end
 
-  defp find_attribute_location(_lines, _attr_name, _start_line, _current_line) do
+  defp find_attribute_location(_xml_lines, _attribute_name, _element_start_line, _search_line) do
     # Fallback to element location if attribute not found
     %{line: nil, column: nil}
   end
@@ -169,11 +196,13 @@ defmodule SC.Parser.SCXMLHandler do
       version_location: version_location
     }
 
-    {:ok, %{state |
-      result: document,
-      current_element: {:scxml, document},
-      stack: [{"scxml", document} | state.stack]
-    }}
+    {:ok,
+     %{
+       state
+       | result: document,
+         current_element: {:scxml, document},
+         stack: [{"scxml", document} | state.stack]
+     }}
   end
 
   defp handle_state_start(attributes, location, state) do
@@ -194,10 +223,12 @@ defmodule SC.Parser.SCXMLHandler do
       initial_location: initial_location
     }
 
-    {:ok, %{state |
-      current_element: {:state, state_element},
-      stack: [{"state", state_element} | state.stack]
-    }}
+    {:ok,
+     %{
+       state
+       | current_element: {:state, state_element},
+         stack: [{"state", state_element} | state.stack]
+     }}
   end
 
   defp handle_transition_start(attributes, location, state) do
@@ -219,10 +250,12 @@ defmodule SC.Parser.SCXMLHandler do
       cond_location: cond_location
     }
 
-    {:ok, %{state |
-      current_element: {:transition, transition},
-      stack: [{"transition", transition} | state.stack]
-    }}
+    {:ok,
+     %{
+       state
+       | current_element: {:transition, transition},
+         stack: [{"transition", transition} | state.stack]
+     }}
   end
 
   defp handle_datamodel_start(_attributes, _location, state) do
@@ -248,41 +281,49 @@ defmodule SC.Parser.SCXMLHandler do
       src_location: src_location
     }
 
-    {:ok, %{state |
-      current_element: {:data, data_element},
-      stack: [{"data", data_element} | state.stack]
-    }}
+    {:ok,
+     %{
+       state
+       | current_element: {:data, data_element},
+         stack: [{"data", data_element} | state.stack]
+     }}
   end
 
   defp handle_state_end(state) do
-    {_name, state_element} = hd(state.stack)
+    {_element_name, state_element} = hd(state.stack)
     parent_stack = tl(state.stack)
 
     case parent_stack do
-      [{"scxml", document} | _rest] ->
+      [{"scxml", document} | _remaining_stack] ->
         updated_document = %{document | states: document.states ++ [state_element]}
-        updated_state = %{state |
-          result: updated_document,
-          stack: [{"scxml", updated_document} | tl(parent_stack)]
+
+        updated_state = %{
+          state
+          | result: updated_document,
+            stack: [{"scxml", updated_document} | tl(parent_stack)]
         }
+
         {:ok, updated_state}
+
       [{"state", parent_state} | rest] ->
         updated_parent = %{parent_state | states: parent_state.states ++ [state_element]}
         {:ok, %{state | stack: [{"state", updated_parent} | rest]}}
-      _ ->
+
+      _other_parent ->
         {:ok, %{state | stack: parent_stack}}
     end
   end
 
   defp handle_transition_end(state) do
-    {_name, transition} = hd(state.stack)
+    {_element_name, transition} = hd(state.stack)
     parent_stack = tl(state.stack)
 
     case parent_stack do
       [{"state", parent_state} | rest] ->
         updated_parent = %{parent_state | transitions: parent_state.transitions ++ [transition]}
         {:ok, %{state | stack: [{"state", updated_parent} | rest]}}
-      _ ->
+
+      _other_parent ->
         {:ok, %{state | stack: parent_stack}}
     end
   end
@@ -292,18 +333,25 @@ defmodule SC.Parser.SCXMLHandler do
   end
 
   defp handle_data_end(state) do
-    {_name, data_element} = hd(state.stack)
+    {_element_name, data_element} = hd(state.stack)
     parent_stack = tl(state.stack)
 
     case parent_stack do
-      [{"datamodel", _} | [{"scxml", document} | rest]] ->
-        updated_document = %{document | datamodel_elements: document.datamodel_elements ++ [data_element]}
-        updated_state = %{state |
-          result: updated_document,
-          stack: [{"datamodel", nil}, {"scxml", updated_document} | rest]
+      [{"datamodel", _datamodel_placeholder} | [{"scxml", document} | rest]] ->
+        updated_document = %{
+          document
+          | datamodel_elements: document.datamodel_elements ++ [data_element]
         }
+
+        updated_state = %{
+          state
+          | result: updated_document,
+            stack: [{"datamodel", nil}, {"scxml", updated_document} | rest]
+        }
+
         {:ok, updated_state}
-      _ ->
+
+      _other_parent ->
         {:ok, %{state | stack: parent_stack}}
     end
   end

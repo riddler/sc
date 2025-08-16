@@ -25,6 +25,8 @@ defmodule SC.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # Development, Test, Local
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:saxy, "~> 1.6"}
     ]
   end

@@ -1,4 +1,12 @@
 defmodule SC.Case do
+  @moduledoc """
+  Test case template for SCXML state machine testing.
+
+  Provides utilities for testing state machine behavior against both
+  SCION and W3C test suites. This module will eventually implement
+  full state machine interpretation and validation.
+  """
+
   # alias StateChart.{Configuration,Event}
   use ExUnit.CaseTemplate, async: true
 
@@ -8,44 +16,12 @@ defmodule SC.Case do
     end
   end
 
+  @spec test_scxml(String.t(), String.t(), list(), list()) :: :ok
   def test_scxml(_xml, _description, _conf, _events) do
-    IO.puts("TODO: need to implement")
-    # datamodels = %{
-    #   "ecmascript" => StateChart.DataModel.ECMA,
-    #   "elixir" => StateChart.DataModel.Elixir,
-    #   "null" => StateChart.DataModel.Null
-    # }
-    #
-    # opts = %{datamodels: datamodels}
-    #
-    # doc = StateChart.SCXML.parse(xml, opts)
-    # context = %{}
-    #
-    # StateChart.interpret(doc, context)
-    # # TODO
-    # |> loop(conf, events)
+    # Implementation pending - will interpret SCXML and validate state transitions
+    :ok
   end
 
-  # defp loop({:await, int, context}, conf, [{event, next} | events]) do
-  #   assert_configuration(int, conf)
-  #   StateChart.handle_event(int, event, context)
-  #   |> loop(next, events)
-  # end
-  # defp loop({:await, int, _context}, conf, []) do
-  #   assert_configuration(int, conf)
-  #   assert false, "End of events and not done"
-  # end
-  # defp loop({:done, int, _context}, conf, []) do
-  #   assert_configuration(int, conf)
-  #   :ok
-  # end
-  # defp loop({:done, int, _context}, conf, events) do
-  #   assert_configuration(int, conf)
-  #   expected = []
-  #   actual = Enum.map(events, fn({event, _}) -> Event.new(event) end)
-  #   assert expected == actual
-  # end
-  #
   # defp assert_configuration(int, expected) do
   #   expected = MapSet.new(expected)
   #   actual = Configuration.active_states(int)

@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `mix deps.get` - Install dependencies
 - `mix compile` - Compile the project
 - `mix docs` - Generate documentation
-- `mix credo` - Run static code analysis
+- `mix credo --strict` - Run static code analysis with strict mode (always run with tests)
 - `mix test --cover` - Run tests with coverage using ExCoveralls
 - `mix format` - Format code according to Elixir standards
 - `mix format --check-formatted` - Check if code is properly formatted
@@ -66,6 +66,10 @@ All parsed SCXML elements include precise source location information for valida
 
 - **`saxy`** (~> 1.6) - Fast, memory-efficient SAX XML parser with position tracking support
 
+## Development Dependencies
+
+- **`credo`** (~> 1.7) - Static code analysis tool for code quality and consistency
+
 ## Tests
 
 This project includes comprehensive test coverage:
@@ -98,8 +102,10 @@ This project includes comprehensive test coverage:
 
 - All generated files have no trailing whitespace
 - Code is formatted using `mix format`
-- Type specs are provided for all public structs
+- Static code analysis with `mix credo --strict` - all issues resolved
+- Type specs (`@spec`) are provided for all public functions
 - Comprehensive documentation with `@moduledoc` and `@doc`
+- Consistent naming for unused variables (meaningful names with `_` prefix)
 
 ## XML Format
 

@@ -1,8 +1,8 @@
 defmodule SC.Parser.SCXMLTest do
   use ExUnit.Case, async: true
 
-  alias SC.Parser.SCXML
   alias SC.Document
+  alias SC.Parser.SCXML
 
   describe "parse/1" do
     test "parses simple SCXML document" do
