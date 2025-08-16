@@ -21,3 +21,6 @@ sc-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Keep granted permissions local to the person
+.claude
