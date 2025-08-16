@@ -1,18 +1,36 @@
 defmodule SC.MixProject do
   use Mix.Project
+  
+  @app :sc
+  @version "0.1.0"
+  @deps [
+    # Development, Test, Local
+    {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+    {:excoveralls, "~> 0.18", only: :test},
+
+    # Runtime
+    {:saxy, "~> 1.6"}
+  ]
 
   def project do
     [
-      app: :sc,
-      version: "0.1.0",
+      app: @app,
+      version: @version,
       elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: @deps,
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test,
+        "coveralls.cobertura": :test
+      ]
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger]
@@ -21,13 +39,4 @@ defmodule SC.MixProject do
 
   defp elixirc_paths(:test), do: ["test/support", "lib"]
   defp elixirc_paths(_), do: ["lib"]
-
-  # Run "mix help deps" to learn about dependencies.
-  defp deps do
-    [
-      # Development, Test, Local
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:saxy, "~> 1.6"}
-    ]
-  end
 end

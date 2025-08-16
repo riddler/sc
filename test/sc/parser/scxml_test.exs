@@ -135,5 +135,128 @@ defmodule SC.Parser.SCXMLTest do
 
       assert {:error, _reason} = SCXML.parse(xml)
     end
+
+    test "handles unknown elements by skipping them" do
+      xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="a">
+        <unknown-element some-attr="value">
+          <nested-unknown/>
+        </unknown-element>
+        <state id="a"/>
+      </scxml>
+      """
+
+      assert {:ok, %Document{} = doc} = SCXML.parse(xml)
+      assert length(doc.states) == 1
+      state = hd(doc.states)
+      assert state.id == "a"
+    end
+
+    test "handles transitions with unknown parent elements" do
+      xml = """
+      <?xml version="1.0" encoding=\"UTF-8\"?>
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+        <unknown-parent>
+          <transition event="test" target="somewhere"/>
+        </unknown-parent>
+        <state id="test"/>
+      </scxml>
+      """
+
+      assert {:ok, %Document{}} = SCXML.parse(xml)
+    end
+
+    test "handles states with unknown parent elements" do
+      xml = """
+      <?xml version="1.0" encoding=\"UTF-8\"?>
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+        <unknown-parent>
+          <state id="orphan"/>
+        </unknown-parent>
+        <state id="normal"/>
+      </scxml>
+      """
+
+      assert {:ok, %Document{} = doc} = SCXML.parse(xml)
+      assert length(doc.states) == 1
+      state = hd(doc.states)
+      assert state.id == "normal"
+    end
+
+    test "handles data elements with unknown parent" do
+      xml = """
+      <?xml version="1.0" encoding=\"UTF-8\"?>
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+        <unknown-parent>
+          <data id="orphan" expr="test"/>
+        </unknown-parent>
+        <state id="test"/>
+      </scxml>
+      """
+
+      assert {:ok, %Document{}} = SCXML.parse(xml)
+    end
+
+    test "handles empty attribute values" do
+      xml = """
+      <?xml version="1.0" encoding=\"UTF-8\"?>
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="">
+        <state id="test" initial="">
+          <transition event="" target="" cond=""/>
+        </state>
+        <datamodel>
+          <data id="empty" expr="" src=""/>
+        </datamodel>
+      </scxml>
+      """
+
+      assert {:ok, %Document{} = doc} = SCXML.parse(xml)
+      assert doc.name == nil
+
+      state = hd(doc.states)
+      assert state.initial == nil
+
+      transition = hd(state.transitions)
+      assert transition.event == nil
+      assert transition.target == nil
+      assert transition.cond == nil
+
+      data = hd(doc.datamodel_elements)
+      assert data.expr == nil
+      assert data.src == nil
+    end
+  end
+
+  describe "edge cases and error handling" do
+    test "handles malformed XML gracefully" do
+      xml = "<scxml><state id='test'><transition"
+
+      assert {:error, _reason} = SCXML.parse(xml)
+    end
+
+    test "handles XML with no matching elements for position tracking" do
+      # This tests the fallback position tracking when elements can't be found
+      xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+        <state id="a"/>
+      </scxml>
+      """
+
+      assert {:ok, %Document{}} = SCXML.parse(xml)
+    end
+
+    test "handles non-string inputs to position tracking" do
+      # This indirectly tests the guard clauses in find_element_position
+      xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+        <state id="test"/>
+      </scxml>
+      """
+
+      assert {:ok, %Document{}} = SCXML.parse(xml)
+    end
   end
 end

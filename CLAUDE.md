@@ -5,7 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 **Testing:**
-- `mix test` - Run all tests
+- `mix coveralls` - Run all tests with coverage reporting (ensure at least 90% coverage)
+- `mix coveralls.detail` - Run tests with detailed coverage report showing uncovered lines
+- `mix test` - Run all tests without coverage
 - `mix test test/sc/location_test.exs` - Run location tracking tests
 - `mix test test/sc/parser/scxml_test.exs` - Run specific SCXML parser tests
 
@@ -14,7 +16,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `mix compile` - Compile the project
 - `mix docs` - Generate documentation
 - `mix credo --strict` - Run static code analysis with strict mode (always run with tests)
-- `mix test --cover` - Run tests with coverage using ExCoveralls
 - `mix format` - Format code according to Elixir standards
 - `mix format --check-formatted` - Check if code is properly formatted
 
