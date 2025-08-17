@@ -203,3 +203,5 @@ XML content within triple quotes uses 4-space base indentation.
 - Enhanced validation for complex SCXML constructs
 
 The implementation follows the W3C SCXML specification closely and includes comprehensive test coverage from both W3C and SCION test suites. The current interpreter provides a solid foundation for basic SCXML functionality with clear areas identified for future enhancement.
+
+- Always refer to state machines as state charts

@@ -1,14 +1,14 @@
-# SC - SCXML State Machine Implementation
+# SC - SCXML State Chart Implementation
 
 [![CI](https://github.com/johnnyt/sc/workflows/CI/badge.svg)](https://github.com/johnnyt/sc/actions)
 [![Coverage](https://codecov.io/gh/johnnyt/sc/branch/main/graph/badge.svg)](https://codecov.io/gh/johnnyt/sc)
 
-An Elixir implementation of SCXML (State Chart XML) state machines with a focus on W3C compliance.
+An Elixir implementation of SCXML (State Chart XML) state charts with a focus on W3C compliance.
 
 ## Features
 
 - ✅ **Complete SCXML Parser** - Converts XML documents to structured data with precise location tracking
-- ✅ **State Machine Interpreter** - Runtime engine for executing SCXML state machines
+- ✅ **State Chart Interpreter** - Runtime engine for executing SCXML state charts
 - ✅ **Comprehensive Validation** - Document validation with detailed error reporting
 - ✅ **Hierarchical States** - Support for nested states and ancestor computation
 - ✅ **Event Processing** - Internal and external event queues per SCXML specification
@@ -145,7 +145,7 @@ mix test test/sc/parser/scxml_test.exs
 ### Core Components
 
 - **`SC.Parser.SCXML`** - SAX-based XML parser with location tracking
-- **`SC.Interpreter`** - Synchronous state machine interpreter 
+- **`SC.Interpreter`** - Synchronous state chart interpreter 
 - **`SC.StateChart`** - Runtime container with event queues
 - **`SC.Configuration`** - Active state management (leaf states only)
 - **`SC.Document.Validator`** - Comprehensive document validation
