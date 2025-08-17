@@ -179,7 +179,7 @@ defmodule SC.InterpreterTest do
 
       # active_states should only include leaf states
       assert MapSet.equal?(active_states, MapSet.new(["child"]))
-      
+
       # active_ancestors should include both parent and child
       assert MapSet.equal?(active_ancestors, MapSet.new(["child", "parent"]))
     end

@@ -75,7 +75,7 @@ defmodule SC.Interpreter.CompoundStateTest do
       {:ok, state_chart} = Interpreter.initialize(document)
 
       # Leaf states: ["child"]
-      active_states = Interpreter.active_states(state_chart) 
+      active_states = Interpreter.active_states(state_chart)
       assert MapSet.equal?(active_states, MapSet.new(["child"]))
 
       # Including ancestors: ["child", "parent"] 

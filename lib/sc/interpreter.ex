@@ -51,7 +51,9 @@ defmodule SC.Interpreter do
 
       [transition | _rest] ->
         # Execute the first enabled transition
-        new_config = execute_transition(state_chart.configuration, transition, state_chart.document)
+        new_config =
+          execute_transition(state_chart.configuration, transition, state_chart.document)
+
         {:ok, StateChart.update_configuration(state_chart, new_config)}
     end
   end
@@ -85,7 +87,9 @@ defmodule SC.Interpreter do
 
   defp get_initial_configuration(%Document{initial: nil, states: []}), do: %Configuration{}
 
-  defp get_initial_configuration(%Document{initial: nil, states: [first_state | _rest]} = document) do
+  defp get_initial_configuration(
+         %Document{initial: nil, states: [first_state | _rest]} = document
+       ) do
     # No initial specified - use first state and enter it properly
     initial_states = enter_compound_state(first_state, document)
     Configuration.new(initial_states)
@@ -93,8 +97,11 @@ defmodule SC.Interpreter do
 
   defp get_initial_configuration(%Document{initial: initial_id} = document) do
     case find_state_by_id(initial_id, document) do
-      nil -> %Configuration{} # Invalid initial state
-      state -> 
+      # Invalid initial state
+      nil ->
+        %Configuration{}
+
+      state ->
         initial_states = enter_compound_state(state, document)
         Configuration.new(initial_states)
     end
@@ -110,17 +117,21 @@ defmodule SC.Interpreter do
   defp enter_compound_state(%SC.State{states: child_states, initial: initial_id}, document) do
     # Compound state - find and enter initial child (don't add compound state to active set)
     initial_child = get_initial_child_state(initial_id, child_states)
+
     case initial_child do
-      nil -> [] # No valid child - compound state with no children is not active
+      # No valid child - compound state with no children is not active
+      nil -> []
       child -> enter_compound_state(child, document)
     end
   end
 
   # Get the initial child state for a compound state
   defp get_initial_child_state(nil, [first_child | _rest]), do: first_child
+
   defp get_initial_child_state(initial_id, child_states) when is_binary(initial_id) do
     Enum.find(child_states, &(&1.id == initial_id))
   end
+
   defp get_initial_child_state(_initial_id, []), do: nil
 
   # Find a state by ID in the document (using the more efficient implementation below)
@@ -145,7 +156,11 @@ defmodule SC.Interpreter do
     |> Enum.sort_by(& &1.document_order)
   end
 
-  defp execute_transition(%Configuration{} = config, %SC.Transition{} = transition, %Document{} = document) do
+  defp execute_transition(
+         %Configuration{} = config,
+         %SC.Transition{} = transition,
+         %Document{} = document
+       ) do
     case transition.target do
       # No target - stay in same state
       nil ->
@@ -160,7 +175,7 @@ defmodule SC.Interpreter do
           nil ->
             # Invalid target - stay in current state
             config
-          
+
           target_state ->
             # For now: replace all active states with target and its children
             # TODO: Implement proper exit/entry sequence
