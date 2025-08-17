@@ -13,19 +13,22 @@ defmodule SC.Parser.SCXMLTest do
       </scxml>
       """
 
-      assert {:ok, %Document{
-        xmlns: "http://www.w3.org/2005/07/scxml",
-        version: "1.0",
-        initial: "a",
-        document_order: 1,
-        states: [%SC.State{
-          id: "a",
-          initial: nil,
-          document_order: 2,
-          states: [],
-          transitions: []
-        }]
-      }} = SCXML.parse(xml)
+      assert {:ok,
+              %Document{
+                xmlns: "http://www.w3.org/2005/07/scxml",
+                version: "1.0",
+                initial: "a",
+                document_order: 1,
+                states: [
+                  %SC.State{
+                    id: "a",
+                    initial: nil,
+                    document_order: 2,
+                    states: [],
+                    transitions: []
+                  }
+                ]
+              }} = SCXML.parse(xml)
     end
 
     test "parses SCXML with transition" do
@@ -39,19 +42,22 @@ defmodule SC.Parser.SCXMLTest do
       </scxml>
       """
 
-      assert {:ok, %Document{
-        states: [
-          %SC.State{
-            id: "a",
-            transitions: [%SC.Transition{
-              event: "go",
-              target: "b",
-              cond: nil
-            }]
-          },
-          %SC.State{id: "b"}
-        ]
-      }} = SCXML.parse(xml)
+      assert {:ok,
+              %Document{
+                states: [
+                  %SC.State{
+                    id: "a",
+                    transitions: [
+                      %SC.Transition{
+                        event: "go",
+                        target: "b",
+                        cond: nil
+                      }
+                    ]
+                  },
+                  %SC.State{id: "b"}
+                ]
+              }} = SCXML.parse(xml)
     end
 
     test "parses SCXML with datamodel" do
@@ -66,20 +72,21 @@ defmodule SC.Parser.SCXMLTest do
       </scxml>
       """
 
-      assert {:ok, %Document{
-        datamodel: "elixir",
-        datamodel_elements: [
-          %SC.DataElement{
-            id: "counter",
-            expr: "0",
-            src: nil
-          },
-          %SC.DataElement{
-            id: "name",
-            expr: nil
-          }
-        ]
-      }} = SCXML.parse(xml)
+      assert {:ok,
+              %Document{
+                datamodel: "elixir",
+                datamodel_elements: [
+                  %SC.DataElement{
+                    id: "counter",
+                    expr: "0",
+                    src: nil
+                  },
+                  %SC.DataElement{
+                    id: "name",
+                    expr: nil
+                  }
+                ]
+              }} = SCXML.parse(xml)
     end
 
     test "parses nested states" do
@@ -95,22 +102,27 @@ defmodule SC.Parser.SCXMLTest do
       </scxml>
       """
 
-      assert {:ok, %Document{
-        states: [%SC.State{
-          id: "parent",
-          initial: "child1",
-          states: [
-            %SC.State{
-              id: "child1",
-              transitions: [%SC.Transition{
-                event: "next",
-                target: "child2"
-              }]
-            },
-            %SC.State{id: "child2"}
-          ]
-        }]
-      }} = SCXML.parse(xml)
+      assert {:ok,
+              %Document{
+                states: [
+                  %SC.State{
+                    id: "parent",
+                    initial: "child1",
+                    states: [
+                      %SC.State{
+                        id: "child1",
+                        transitions: [
+                          %SC.Transition{
+                            event: "next",
+                            target: "child2"
+                          }
+                        ]
+                      },
+                      %SC.State{id: "child2"}
+                    ]
+                  }
+                ]
+              }} = SCXML.parse(xml)
     end
 
     test "handles empty attributes as nil" do
@@ -124,17 +136,23 @@ defmodule SC.Parser.SCXMLTest do
       </scxml>
       """
 
-      assert {:ok, %Document{
-        initial: nil,
-        states: [%SC.State{
-          initial: nil,
-          transitions: [%SC.Transition{
-            event: nil,
-            cond: nil,
-            target: "end"
-          }]
-        }, %SC.State{id: "end"}]
-      }} = SCXML.parse(xml)
+      assert {:ok,
+              %Document{
+                initial: nil,
+                states: [
+                  %SC.State{
+                    initial: nil,
+                    transitions: [
+                      %SC.Transition{
+                        event: nil,
+                        cond: nil,
+                        target: "end"
+                      }
+                    ]
+                  },
+                  %SC.State{id: "end"}
+                ]
+              }} = SCXML.parse(xml)
     end
 
     test "returns error for invalid XML" do
@@ -154,9 +172,10 @@ defmodule SC.Parser.SCXMLTest do
       </scxml>
       """
 
-      assert {:ok, %Document{
-        states: [%SC.State{id: "a"}]
-      }} = SCXML.parse(xml)
+      assert {:ok,
+              %Document{
+                states: [%SC.State{id: "a"}]
+              }} = SCXML.parse(xml)
     end
 
     test "handles transitions with unknown parent elements" do
@@ -184,9 +203,10 @@ defmodule SC.Parser.SCXMLTest do
       </scxml>
       """
 
-      assert {:ok, %Document{
-        states: [%SC.State{id: "normal"}]
-      }} = SCXML.parse(xml)
+      assert {:ok,
+              %Document{
+                states: [%SC.State{id: "normal"}]
+              }} = SCXML.parse(xml)
     end
 
     test "handles data elements with unknown parent" do
@@ -216,21 +236,28 @@ defmodule SC.Parser.SCXMLTest do
       </scxml>
       """
 
-      assert {:ok, %Document{
-        name: nil,
-        states: [%SC.State{
-          initial: nil,
-          transitions: [%SC.Transition{
-            event: nil,
-            target: nil,
-            cond: nil
-          }]
-        }],
-        datamodel_elements: [%SC.DataElement{
-          expr: nil,
-          src: nil
-        }]
-      }} = SCXML.parse(xml)
+      assert {:ok,
+              %Document{
+                name: nil,
+                states: [
+                  %SC.State{
+                    initial: nil,
+                    transitions: [
+                      %SC.Transition{
+                        event: nil,
+                        target: nil,
+                        cond: nil
+                      }
+                    ]
+                  }
+                ],
+                datamodel_elements: [
+                  %SC.DataElement{
+                    expr: nil,
+                    src: nil
+                  }
+                ]
+              }} = SCXML.parse(xml)
     end
   end
 
@@ -280,24 +307,25 @@ defmodule SC.Parser.SCXMLTest do
       </scxml>
       """
 
-      assert {:ok, %Document{
-        document_order: 1,
-        datamodel_elements: [
-          %SC.DataElement{document_order: 3},
-          %SC.DataElement{document_order: 4}
-        ],
-        states: [
-          %SC.State{
-            id: "a",
-            document_order: 5,
-            transitions: [%SC.Transition{document_order: 6}]
-          },
-          %SC.State{
-            id: "b",
-            document_order: 7
-          }
-        ]
-      }} = SCXML.parse(xml)
+      assert {:ok,
+              %Document{
+                document_order: 1,
+                datamodel_elements: [
+                  %SC.DataElement{document_order: 3},
+                  %SC.DataElement{document_order: 4}
+                ],
+                states: [
+                  %SC.State{
+                    id: "a",
+                    document_order: 5,
+                    transitions: [%SC.Transition{document_order: 6}]
+                  },
+                  %SC.State{
+                    id: "b",
+                    document_order: 7
+                  }
+                ]
+              }} = SCXML.parse(xml)
     end
   end
 end
