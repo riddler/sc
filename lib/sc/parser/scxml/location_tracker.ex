@@ -32,10 +32,8 @@ defmodule SC.Parser.SCXML.LocationTracker do
   defp element_position(xml_string, element_name, element_counts) do
     occurrence = Map.get(element_counts, element_name, 1)
 
-    case find_element_position(xml_string, element_name, occurrence) do
-      {line, column} -> %{line: line, column: column}
-      _fallback -> %{line: 1, column: 1}
-    end
+    {line, column} = find_element_position(xml_string, element_name, occurrence)
+    %{line: line, column: column}
   end
 
   # Find the position of an element by searching the XML string

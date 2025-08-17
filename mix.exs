@@ -6,6 +6,7 @@ defmodule SC.MixProject do
   @deps [
     # Development, Test, Local
     {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+    {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
     {:excoveralls, "~> 0.18", only: :test},
 
     # Runtime

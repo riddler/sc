@@ -9,6 +9,7 @@ When verifying code changes, always follow this sequence:
 1. `mix format` - Auto-fix formatting issues (trailing whitespace, final newlines, etc.)
 2. `mix coveralls` - Ensure functionality and maintain at least 90% test coverage
 3. `mix credo --strict` - Run static code analysis only after tests pass
+4. `mix dialyzer` - Run Dialyzer static analysis for type checking
 
 **Testing:**
 - `mix coveralls` - Run all tests with coverage reporting (ensure at least 90% coverage)
@@ -23,7 +24,8 @@ When verifying code changes, always follow this sequence:
 - `mix docs` - Generate documentation
 - `mix format` - Format code according to Elixir standards (run first for code verification)
 - `mix format --check-formatted` - Check if code is properly formatted
-- `mix credo --strict` - Run static code analysis with strict mode (run last after tests pass)
+- `mix credo --strict` - Run static code analysis with strict mode (run after tests pass)
+- `mix dialyzer` - Run Dialyzer for static type analysis (run last in verification workflow)
 
 ## Architecture
 
@@ -102,6 +104,7 @@ All parsed SCXML elements include precise source location information for valida
 ## Development Dependencies
 
 - **`credo`** (~> 1.7) - Static code analysis tool for code quality and consistency
+- **`dialyxir`** (~> 1.4) - Dialyzer wrapper for static type analysis and error detection
 
 ## Tests
 
