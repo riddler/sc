@@ -178,7 +178,7 @@ defmodule SC.Interpreter do
 
           target_state ->
             # For now: replace all active states with target and its children
-            # TODO: Implement proper exit/entry sequence
+            # Future: Implement proper SCXML exit/entry sequence with LCA computation
             target_leaf_states = enter_compound_state(target_state, document)
             Configuration.new(target_leaf_states)
         end

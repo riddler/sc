@@ -78,7 +78,7 @@ defmodule SC.Interpreter.CompoundStateTest do
       active_states = Interpreter.active_states(state_chart)
       assert MapSet.equal?(active_states, MapSet.new(["child"]))
 
-      # Including ancestors: ["child", "parent"] 
+      # Including ancestors: ["child", "parent"]
       active_ancestors = Interpreter.active_ancestors(state_chart)
       assert MapSet.equal?(active_ancestors, MapSet.new(["child", "parent"]))
     end
