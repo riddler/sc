@@ -6,7 +6,7 @@ defmodule SC.MixProject do
   @deps [
     # Development, Test, Local
     {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-    {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
+    {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
     {:excoveralls, "~> 0.18", only: :test},
 
     # Runtime
@@ -27,12 +27,14 @@ defmodule SC.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test,
+        "coveralls.json": :test,
         "coveralls.cobertura": :test,
         "coveralls.github": :test
       ],
       dialyzer: [
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
-        plt_add_apps: [:mix]
+        plt_add_apps: [:mix, :ex_unit],
+        warnings: [:unknown]
       ]
     ]
   end

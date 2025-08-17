@@ -1,7 +1,7 @@
 # SC - SCXML State Chart Implementation
 
 [![CI](https://github.com/johnnyt/sc/workflows/CI/badge.svg)](https://github.com/johnnyt/sc/actions)
-[![Coverage](https://codecov.io/gh/johnnyt/sc/branch/main/graph/badge.svg)](https://codecov.io/gh/johnnyt/sc)
+[![Coverage](https://codecov.io/gh/riddler/sc/branch/main/graph/badge.svg)](https://codecov.io/gh/riddler/sc)
 
 An Elixir implementation of SCXML (State Chart XML) state charts with a focus on W3C compliance.
 
