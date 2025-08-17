@@ -6,14 +6,14 @@ defmodule SC.ConfigurationTest do
   describe "new/1" do
     test "creates configuration with given state IDs" do
       config = Configuration.new(["state_a", "state_b"])
-      
+
       expected_states = MapSet.new(["state_a", "state_b"])
       assert config.active_states == expected_states
     end
 
     test "creates configuration with empty list" do
       config = Configuration.new([])
-      
+
       assert config.active_states == MapSet.new()
     end
   end
@@ -21,10 +21,10 @@ defmodule SC.ConfigurationTest do
   describe "active_states/1" do
     test "returns the active states MapSet" do
       config = Configuration.new(["state_a", "state_b"])
-      
+
       active_states = Configuration.active_states(config)
       expected_states = MapSet.new(["state_a", "state_b"])
-      
+
       assert active_states == expected_states
     end
   end
@@ -32,18 +32,18 @@ defmodule SC.ConfigurationTest do
   describe "add_state/2" do
     test "adds a state to the active configuration" do
       config = Configuration.new(["state_a"])
-      
+
       updated_config = Configuration.add_state(config, "state_b")
-      
+
       expected_states = MapSet.new(["state_a", "state_b"])
       assert updated_config.active_states == expected_states
     end
 
     test "adding duplicate state does not change configuration" do
       config = Configuration.new(["state_a"])
-      
+
       updated_config = Configuration.add_state(config, "state_a")
-      
+
       expected_states = MapSet.new(["state_a"])
       assert updated_config.active_states == expected_states
     end
@@ -52,18 +52,18 @@ defmodule SC.ConfigurationTest do
   describe "remove_state/2" do
     test "removes a state from the active configuration" do
       config = Configuration.new(["state_a", "state_b"])
-      
+
       updated_config = Configuration.remove_state(config, "state_a")
-      
+
       expected_states = MapSet.new(["state_b"])
       assert updated_config.active_states == expected_states
     end
 
     test "removing non-existent state does not change configuration" do
       config = Configuration.new(["state_a"])
-      
+
       updated_config = Configuration.remove_state(config, "state_b")
-      
+
       expected_states = MapSet.new(["state_a"])
       assert updated_config.active_states == expected_states
     end
@@ -72,14 +72,14 @@ defmodule SC.ConfigurationTest do
   describe "active?/2" do
     test "returns true when state is active" do
       config = Configuration.new(["state_a", "state_b"])
-      
+
       assert Configuration.active?(config, "state_a")
       assert Configuration.active?(config, "state_b")
     end
 
     test "returns false when state is not active" do
       config = Configuration.new(["state_a"])
-      
+
       refute Configuration.active?(config, "state_b")
       refute Configuration.active?(config, "state_c")
     end
@@ -93,10 +93,11 @@ defmodule SC.ConfigurationTest do
           %State{id: "state_b", parent: nil, depth: 0}
         ]
       }
+
       config = Configuration.new(["state_a"])
-      
+
       ancestors = Configuration.active_ancestors(config, document)
-      
+
       assert MapSet.equal?(ancestors, MapSet.new(["state_a"]))
     end
 
@@ -105,14 +106,15 @@ defmodule SC.ConfigurationTest do
       document = %Document{
         states: [
           %State{id: "parent", parent: nil, depth: 0},
-          %State{id: "child", parent: "parent", depth: 1}, 
+          %State{id: "child", parent: "parent", depth: 1},
           %State{id: "grandchild", parent: "child", depth: 2}
         ]
       }
+
       config = Configuration.new(["grandchild"])
-      
+
       ancestors = Configuration.active_ancestors(config, document)
-      
+
       # Should include the active state and all its ancestors
       expected = MapSet.new(["grandchild", "child", "parent"])
       assert MapSet.equal?(ancestors, expected)
@@ -127,10 +129,11 @@ defmodule SC.ConfigurationTest do
           %State{id: "child2", parent: "parent2", depth: 1}
         ]
       }
+
       config = Configuration.new(["child1", "child2"])
-      
+
       ancestors = Configuration.active_ancestors(config, document)
-      
+
       # Should include both hierarchies
       expected = MapSet.new(["child1", "parent1", "child2", "parent2"])
       assert MapSet.equal?(ancestors, expected)
@@ -142,11 +145,12 @@ defmodule SC.ConfigurationTest do
           %State{id: "state_a", parent: nil, depth: 0}
         ]
       }
+
       # Reference a state that doesn't exist in the document
       config = Configuration.new(["state_a", "missing_state"])
-      
+
       ancestors = Configuration.active_ancestors(config, document)
-      
+
       # The function includes all active states, even missing ones, but doesn't find parents for missing states
       expected = MapSet.new(["state_a", "missing_state"])
       assert MapSet.equal?(ancestors, expected)

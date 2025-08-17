@@ -6,7 +6,7 @@ defmodule SC.EventTest do
   describe "new/2" do
     test "creates external event with name only" do
       event = Event.new("test_event")
-      
+
       assert event.name == "test_event"
       assert event.data == %{}
       assert event.origin == :external
@@ -15,7 +15,7 @@ defmodule SC.EventTest do
     test "creates external event with name and data" do
       data = %{"key" => "value", "count" => 42}
       event = Event.new("test_event", data)
-      
+
       assert event.name == "test_event"
       assert event.data == data
       assert event.origin == :external
@@ -25,7 +25,7 @@ defmodule SC.EventTest do
   describe "internal/2" do
     test "creates internal event with name only" do
       event = Event.internal("internal_event")
-      
+
       assert event.name == "internal_event"
       assert event.data == %{}
       assert event.origin == :internal
@@ -34,7 +34,7 @@ defmodule SC.EventTest do
     test "creates internal event with name and data" do
       data = %{"source" => "state_a", "value" => 123}
       event = Event.internal("internal_event", data)
-      
+
       assert event.name == "internal_event"
       assert event.data == data
       assert event.origin == :internal
