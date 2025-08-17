@@ -232,7 +232,7 @@ jobs:
           deps-${{ runner.os }}-27.3-1.18.3-
 
     - name: Run SCION basic tests
-      run: mix test --include scion --include spec:basic --exclude scxml_w3
+      run: mix test --include spec:basic
 
     - name: Upload SCION test results
       uses: actions/upload-artifact@v4
