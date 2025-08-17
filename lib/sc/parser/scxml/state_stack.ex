@@ -16,7 +16,9 @@ defmodule SC.Parser.SCXML.StateStack do
 
     case parent_stack do
       [{"scxml", document} | _remaining_stack] ->
-        updated_document = %{document | states: document.states ++ [state_element]}
+        # State is at document root - set parent=nil, depth=0
+        state_with_hierarchy = %{state_element | parent: nil, depth: 0}
+        updated_document = %{document | states: document.states ++ [state_with_hierarchy]}
 
         updated_state = %{
           state
@@ -27,7 +29,17 @@ defmodule SC.Parser.SCXML.StateStack do
         {:ok, updated_state}
 
       [{"state", parent_state} | rest] ->
-        updated_parent = %{parent_state | states: parent_state.states ++ [state_element]}
+        # State is nested - calculate depth from stack level
+        # Stack depth = document level (0) + state nesting level
+        current_depth = calculate_stack_depth(rest) + 1
+
+        state_with_hierarchy = %{
+          state_element
+          | parent: parent_state.id,
+            depth: current_depth
+        }
+
+        updated_parent = %{parent_state | states: parent_state.states ++ [state_with_hierarchy]}
         {:ok, %{state | stack: [{"state", updated_parent} | rest]}}
 
       _other_parent ->
@@ -103,5 +115,10 @@ defmodule SC.Parser.SCXML.StateStack do
   @spec pop_element(map()) :: map()
   def pop_element(state) do
     %{state | stack: tl(state.stack)}
+  end
+
+  # Count the number of state elements in the stack to determine nesting depth
+  defp calculate_stack_depth(stack) do
+    Enum.count(stack, fn {element_type, _element} -> element_type == "state" end)
   end
 end

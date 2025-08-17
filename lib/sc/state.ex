@@ -8,6 +8,9 @@ defmodule SC.State do
     :initial,
     states: [],
     transitions: [],
+    # Hierarchy navigation
+    parent: nil,
+    depth: 0,
     # Document order for deterministic processing
     document_order: nil,
     # Location information for validation
@@ -21,6 +24,8 @@ defmodule SC.State do
           initial: String.t() | nil,
           states: [SC.State.t()],
           transitions: [SC.Transition.t()],
+          parent: String.t() | nil,
+          depth: non_neg_integer(),
           document_order: integer() | nil,
           source_location: map() | nil,
           id_location: map() | nil,
