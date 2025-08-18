@@ -15,7 +15,7 @@ defmodule SC.Interpreter do
   """
   @spec initialize(Document.t()) :: {:ok, StateChart.t()} | {:error, [String.t()], [String.t()]}
   def initialize(%Document{} = document) do
-    case Document.Validator.validate(document) do
+    case SC.Validator.validate(document) do
       {:ok, optimized_document, warnings} ->
         state_chart =
           StateChart.new(optimized_document, get_initial_configuration(optimized_document))

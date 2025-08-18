@@ -1,4 +1,4 @@
-defmodule SC.Document.ValidatorFinalStateTest do
+defmodule SC.Validator.FinalStateTest do
   use ExUnit.Case
 
   alias SC.{Document, Parser.SCXML}
@@ -15,7 +15,7 @@ defmodule SC.Document.ValidatorFinalStateTest do
     """
 
     {:ok, document} = SCXML.parse(xml)
-    {:ok, validated_document, _warnings} = Document.Validator.validate(document)
+    {:ok, validated_document, _warnings} = SC.Validator.validate(document)
 
     # Find the final state in the validated document
     final_state = Enum.find(validated_document.states, &(&1.id == "final_state"))
@@ -39,7 +39,7 @@ defmodule SC.Document.ValidatorFinalStateTest do
     """
 
     {:ok, document} = SCXML.parse(xml)
-    {:ok, validated_document, _warnings} = Document.Validator.validate(document)
+    {:ok, validated_document, _warnings} = SC.Validator.validate(document)
 
     # Find the compound state
     compound_state = Enum.find(validated_document.states, &(&1.id == "compound"))
@@ -64,7 +64,7 @@ defmodule SC.Document.ValidatorFinalStateTest do
     """
 
     {:ok, document} = SCXML.parse(xml)
-    {:ok, validated_document, _warnings} = Document.Validator.validate(document)
+    {:ok, validated_document, _warnings} = SC.Validator.validate(document)
 
     # Find the parallel state
     parallel_state = Enum.find(validated_document.states, &(&1.id == "parallel_state"))
@@ -91,7 +91,7 @@ defmodule SC.Document.ValidatorFinalStateTest do
     """
 
     {:ok, document} = SCXML.parse(xml)
-    {:ok, validated_document, _warnings} = Document.Validator.validate(document)
+    {:ok, validated_document, _warnings} = SC.Validator.validate(document)
 
     # Check both final states are preserved
     final1 = Enum.find(validated_document.states, &(&1.id == "final1"))

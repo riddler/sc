@@ -43,7 +43,7 @@ defmodule SC.Parser.ParallelParsingTest do
       """
 
       {:ok, document} = SCXML.parse(xml)
-      {:ok, validated_document, _warnings} = Document.Validator.validate(document)
+      {:ok, validated_document, _warnings} = SC.Validator.validate(document)
 
       [parallel_state] = validated_document.states
       assert parallel_state.type == :parallel
@@ -69,7 +69,7 @@ defmodule SC.Parser.ParallelParsingTest do
       """
 
       {:ok, document} = SCXML.parse(xml)
-      {:ok, validated_document, _warnings} = Document.Validator.validate(document)
+      {:ok, validated_document, _warnings} = SC.Validator.validate(document)
 
       [parallel_state] = validated_document.states
       assert parallel_state.type == :parallel

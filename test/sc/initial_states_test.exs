@@ -120,7 +120,7 @@ defmodule SC.InitialStatesTest do
       """
 
       {:ok, document} = Parser.SCXML.parse(xml)
-      {:ok, _document, warnings} = Document.Validator.validate(document)
+      {:ok, _document, warnings} = SC.Validator.validate(document)
       assert Enum.empty?(warnings)
     end
 
@@ -138,7 +138,7 @@ defmodule SC.InitialStatesTest do
       """
 
       {:ok, document} = Parser.SCXML.parse(xml)
-      {:error, errors, _warnings} = Document.Validator.validate(document)
+      {:error, errors, _warnings} = SC.Validator.validate(document)
 
       assert length(errors) == 1
       assert hd(errors) =~ "cannot have both initial attribute and initial element"
@@ -158,7 +158,7 @@ defmodule SC.InitialStatesTest do
       }
 
       document = %Document{states: [compound_state]}
-      {:error, errors, _warnings} = Document.Validator.validate(document)
+      {:error, errors, _warnings} = SC.Validator.validate(document)
 
       assert length(errors) >= 1
       assert Enum.any?(errors, &String.contains?(&1, "must contain exactly one transition"))
@@ -180,7 +180,7 @@ defmodule SC.InitialStatesTest do
       }
 
       document = %Document{states: [compound_state]}
-      {:error, errors, _warnings} = Document.Validator.validate(document)
+      {:error, errors, _warnings} = SC.Validator.validate(document)
 
       assert length(errors) >= 1
       assert Enum.any?(errors, &String.contains?(&1, "not a valid direct child"))
@@ -198,7 +198,7 @@ defmodule SC.InitialStatesTest do
       }
 
       document = %Document{states: [compound_state]}
-      {:error, errors, _warnings} = Document.Validator.validate(document)
+      {:error, errors, _warnings} = SC.Validator.validate(document)
 
       assert length(errors) >= 1
       assert Enum.any?(errors, &String.contains?(&1, "cannot have multiple initial elements"))

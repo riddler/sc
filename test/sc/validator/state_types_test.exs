@@ -1,4 +1,4 @@
-defmodule SC.Document.ValidatorStateTypesTest do
+defmodule SC.Validator.StateTypesTest do
   use ExUnit.Case, async: true
 
   alias SC.{Document, Parser.SCXML}
@@ -48,7 +48,7 @@ defmodule SC.Document.ValidatorStateTypesTest do
       """
 
       {:ok, document} = SCXML.parse(xml)
-      {:error, _errors, _warnings} = Document.Validator.validate(document)
+      {:error, _errors, _warnings} = SC.Validator.validate(document)
 
       # State types are determined at parse time regardless of validity
       [state] = document.states

@@ -57,7 +57,7 @@ defmodule SC.Parser.HierarchyTest do
       """
 
       {:ok, raw_document} = SCXML.parse(xml)
-      {:ok, document, _warnings} = Document.Validator.validate(raw_document)
+      {:ok, document, _warnings} = SC.Validator.validate(raw_document)
 
       # Create a configuration with the deepest state active
       config = SC.Configuration.new(["grandchild"])
