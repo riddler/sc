@@ -29,6 +29,7 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 **Regression Suite:** 22 tests (all critical functionality)
 
 ### Working Features
+
 - ✅ **Basic state transitions** and event-driven changes
 - ✅ **Hierarchical states** with optimized O(1) state lookup and automatic initial child entry  
 - ✅ **Initial state elements** - Full `<initial>` element support with transitions and comprehensive validation
@@ -41,7 +42,8 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 - ✅ **Code quality** - Full Credo compliance with proper module aliasing throughout codebase
 
 ### Planned Features
-- History states (`<history>`) 
+
+- History states (`<history>`)
 - Conditional transitions with expression evaluation (`cond` attribute)
 - Internal and targetless transitions
 - Executable content (`<script>`, `<assign>`, `<send>`, `<onentry>`, `<onexit>`, etc.)
@@ -50,7 +52,8 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 
 ## Recent Completions
 
-### **✅ Feature-Based Test Validation System** 
+### **✅ Feature-Based Test Validation System**
+
 **COMPLETED** - Improves test accuracy by validating that tests actually exercise intended SCXML functionality:
 
 - **`SC.FeatureDetector`** - Analyzes SCXML documents to detect used features
@@ -59,6 +62,7 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 - **Capability tracking** - Clear visibility into which SCXML features are supported
 
 ### **✅ Modular Validator Architecture**
+
 **COMPLETED** - Refactored monolithic validator into focused, maintainable modules:
 
 - **`SC.Validator`** - Main orchestrator (from 386-line monolith)
@@ -69,6 +73,7 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 - **`SC.Validator.Utils`** - Shared utilities
 
 ### **✅ Initial State Elements**
+
 **COMPLETED** - Full W3C-compliant support for `<initial>` elements:
 
 - **Parser support** - `<initial>` elements with `<transition>` children
@@ -81,12 +86,14 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 The next major areas for development focus on expanding SCXML feature support:
 
 ### **High Priority Features**
+
 - **Conditional Transitions** - `cond` attribute evaluation for dynamic transitions
 - **Executable Content** - `<onentry>`, `<onexit>`, `<assign>`, `<script>` elements
 - **Datamodel Support** - `<data>` elements with expression evaluation
 - **History States** - Shallow and deep history state support
 
 ### **Medium Priority Features**  
+
 - **Internal Transitions** - `type="internal"` transition support
 - **Targetless Transitions** - Transitions without target for pure actions
 - **Enhanced Error Handling** - Better error messages with source locations
@@ -158,7 +165,7 @@ end
 
 ### Requirements
 
-- Elixir 1.17+ 
+- Elixir 1.17+
 - Erlang/OTP 26+
 
 ### Setup
@@ -196,6 +203,7 @@ mix test.baseline
 ```
 
 The regression suite tracks:
+
 - **Internal tests**: All `test/sc/**/*_test.exs` files (supports wildcards)
 - **SCION tests**: 8 known passing tests (basic + hierarchy + parallel)
 - **W3C tests**: Currently none passing
@@ -257,12 +265,14 @@ mix test test/sc/parser/scxml_test.exs
 The implementation includes several key optimizations for production use:
 
 ### **O(1) State and Transition Lookups**
+
 - **State Lookup Map**: `%{state_id => state}` for instant state access
 - **Transition Lookup Map**: `%{state_id => [transitions]}` for fast transition queries  
 - **Built During Validation**: Lookup maps only created for valid documents
 - **Memory Efficient**: Uses existing document structure, no duplication
 
 ### **Compound and Parallel State Entry**
+
 ```elixir
 # Automatic hierarchical entry
 {:ok, state_chart} = SC.Interpreter.initialize(document)
@@ -278,11 +288,13 @@ ancestors = SC.Interpreter.active_ancestors(state_chart)
 ```
 
 ### **Parse → Validate → Optimize Flow**
+
 - **Separation of Concerns**: Parser focuses on structure, validator on semantics
 - **Conditional Optimization**: Only builds lookup maps for valid documents
 - **Future-Proof**: Supports additional parsers (JSON, YAML) with same validation
 
 **Performance Impact:**
+
 - O(1) vs O(n) state lookups during interpretation
 - O(1) vs O(n) transition queries for event processing  
 - Source field optimization eliminates expensive lookups during event processing
@@ -293,6 +305,7 @@ ancestors = SC.Interpreter.active_ancestors(state_chart)
 The project includes a sophisticated regression testing system to ensure stability:
 
 ### **Test Registry** (`test/passing_tests.json`)
+
 ```json
 {
   "internal_tests": ["test/sc_test.exs", "test/sc/**/*_test.exs"],
@@ -302,16 +315,19 @@ The project includes a sophisticated regression testing system to ensure stabili
 ```
 
 ### **Wildcard Support**
+
 - Supports glob patterns like `test/sc/**/*_test.exs`
 - Automatically expands to all matching test files
 - Maintains clean, maintainable test registry
 
 ### **CI Integration**
+
 - Regression tests run before full test suite in CI
 - Prevents merging code that breaks core functionality
 - Fast feedback loop (22 tests vs 290 total tests)
 
 ### **Local Development**
+
 ```bash
 # Check current regression status
 mix test.regression
