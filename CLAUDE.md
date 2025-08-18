@@ -92,7 +92,7 @@ Also use this initial Elixir implementation as reference: <https://github.com/ca
 
 ### Validation and Optimization (Validate + Optimize Phases)
 
-- **`SC.Validator`** - Main validation orchestrator (refactored from monolithic `SC.Document.Validator`)
+- **`SC.Validator`** - Main validation orchestrator
   - **Modular architecture**: Split into focused sub-validators for maintainability
   - **Validation**: Structural correctness, semantic consistency, reference validation
   - **Optimization**: Builds O(1) lookup maps via `finalize/2` for valid documents only
