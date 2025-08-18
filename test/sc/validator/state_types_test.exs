@@ -1,7 +1,8 @@
 defmodule SC.Validator.StateTypesTest do
   use ExUnit.Case, async: true
 
-  alias SC.{Document, Parser.SCXML}
+  alias SC.{Document, Parser, Validator}
+  alias SC.Parser.SCXML
 
   describe "state type determination at parse time" do
     test "atomic state type determined at parse time" do
@@ -48,7 +49,7 @@ defmodule SC.Validator.StateTypesTest do
       """
 
       {:ok, document} = SCXML.parse(xml)
-      {:error, _errors, _warnings} = SC.Validator.validate(document)
+      {:error, _errors, _warnings} = Validator.validate(document)
 
       # State types are determined at parse time regardless of validity
       [state] = document.states

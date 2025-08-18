@@ -6,6 +6,8 @@ defmodule SC.Validator do
   malformed hierarchies, and other problems that could cause runtime errors.
   """
 
+  alias SC.Document
+
   alias SC.Validator.{
     InitialStateValidator,
     ReachabilityAnalyzer,
@@ -64,7 +66,7 @@ defmodule SC.Validator do
       case validated_result.errors do
         [] ->
           # Only optimize valid documents (state types already determined at parse time)
-          SC.Document.build_lookup_maps(document)
+          Document.build_lookup_maps(document)
 
         _errors ->
           # Don't waste time optimizing invalid documents
