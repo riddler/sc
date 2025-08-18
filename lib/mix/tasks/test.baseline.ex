@@ -21,6 +21,7 @@ defmodule Mix.Tasks.Test.Baseline do
   """
 
   # credo:disable-for-this-file Credo.Check.Refactor.IoPuts
+  # credo:disable-for-this-file Credo.Check.Refactor.Nesting
 
   use Mix.Task
 
@@ -30,12 +31,12 @@ defmodule Mix.Tasks.Test.Baseline do
       ["add" | test_files] when test_files != [] ->
         add_tests_to_baseline(test_files)
 
-      _ ->
+      _args ->
         run_baseline_analysis()
     end
   end
 
-  defp run_baseline_analysis() do
+  defp run_baseline_analysis do
     IO.puts("🔍 Running all tests to check current baseline...")
 
     # Load current baseline
@@ -143,15 +144,15 @@ defmodule Mix.Tasks.Test.Baseline do
   Loads the current passing tests configuration from test/passing_tests.json.
   """
   @spec load_passing_tests() :: {:ok, map()} | {:error, String.t()}
-  def load_passing_tests() do
+  def load_passing_tests do
     case File.read("test/passing_tests.json") do
       {:ok, content} ->
         case Jason.decode(content) do
           {:ok, data} -> {:ok, data}
-          {:error, _} -> {:error, "Invalid JSON in test/passing_tests.json"}
+          {:error, _json_error} -> {:error, "Invalid JSON in test/passing_tests.json"}
         end
 
-      {:error, _} ->
+      {:error, _file_error} ->
         {:error, "Could not read test/passing_tests.json"}
     end
   end
@@ -167,7 +168,7 @@ defmodule Mix.Tasks.Test.Baseline do
       case test_type do
         "scion" -> "test/scion_tests"
         "scxml_w3" -> "test/scxml_w3_tests"
-        _ -> "test/#{test_type}_tests"
+        _other -> "test/#{test_type}_tests"
       end
 
     IO.puts("  🔍 Testing individual files for #{test_type}...")
@@ -211,13 +212,13 @@ defmodule Mix.Tasks.Test.Baseline do
               |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
               |> Enum.map(&Path.join(subdir_path, &1))
 
-            {:error, _} ->
+            {:error, _ls_error} ->
               []
           end
         end)
         |> Enum.sort()
 
-      {:error, _} ->
+      {:error, _ls_error} ->
         []
     end
   end
@@ -225,55 +226,76 @@ defmodule Mix.Tasks.Test.Baseline do
   defp add_tests_to_baseline(test_files) do
     IO.puts("📝 Adding tests to baseline: #{Enum.join(test_files, ", ")}")
 
-    case load_passing_tests() do
-      {:ok, current_baseline} ->
-        # Categorize tests by type
-        {scion_tests, w3c_tests} = categorize_test_files(test_files)
-
-        if length(scion_tests) > 0 or length(w3c_tests) > 0 do
-          # Verify tests actually pass before adding
-          all_tests = scion_tests ++ w3c_tests
-          IO.puts("🧪 Verifying tests pass before adding to baseline...")
-
-          failed_tests =
-            all_tests
-            |> Enum.filter(fn test_file ->
-              # Run with appropriate tags for SCION/W3C tests
-              test_args = get_test_args_for_file(test_file)
-
-              {_output, exit_code} =
-                System.cmd("mix", test_args ++ [test_file], stderr_to_stdout: true)
-
-              exit_code != 0
-            end)
-
-          if length(failed_tests) > 0 do
-            IO.puts("❌ The following tests are failing and won't be added:")
-            Enum.each(failed_tests, &IO.puts("  - #{&1}"))
-
-            passing_scion = scion_tests -- failed_tests
-            passing_w3c = w3c_tests -- failed_tests
-
-            if length(passing_scion) > 0 or length(passing_w3c) > 0 do
-              IO.puts("\n✅ Adding only the passing tests:")
-              Enum.each(passing_scion ++ passing_w3c, &IO.puts("  + #{&1}"))
-
-              do_update_baseline(
-                MapSet.new(passing_scion),
-                MapSet.new(passing_w3c),
-                current_baseline
-              )
-            end
-          else
-            IO.puts("✅ All tests pass! Adding to baseline...")
-            do_update_baseline(MapSet.new(scion_tests), MapSet.new(w3c_tests), current_baseline)
-          end
-        else
-          IO.puts("❌ No valid test files provided. Provide SCION or W3C test file paths.")
-        end
-
+    with {:ok, current_baseline} <- load_passing_tests(),
+         {scion_tests, w3c_tests} <- categorize_test_files(test_files),
+         :ok <- validate_has_valid_tests(scion_tests, w3c_tests) do
+      verify_and_add_tests(scion_tests, w3c_tests, current_baseline)
+    else
       {:error, reason} ->
         IO.puts("❌ Failed to load current baseline: #{reason}")
+
+      :no_valid_tests ->
+        IO.puts("❌ No valid test files provided. Provide SCION or W3C test file paths.")
+    end
+  end
+
+  defp validate_has_valid_tests(scion_tests, w3c_tests) do
+    if length(scion_tests) > 0 or length(w3c_tests) > 0 do
+      :ok
+    else
+      :no_valid_tests
+    end
+  end
+
+  defp verify_and_add_tests(scion_tests, w3c_tests, current_baseline) do
+    all_tests = scion_tests ++ w3c_tests
+    IO.puts("🧪 Verifying tests pass before adding to baseline...")
+
+    failed_tests = find_failed_tests(all_tests)
+
+    case failed_tests do
+      [] ->
+        add_all_passing_tests(scion_tests, w3c_tests, current_baseline)
+
+      _failed ->
+        handle_mixed_results(scion_tests, w3c_tests, failed_tests, current_baseline)
+    end
+  end
+
+  defp find_failed_tests(all_tests) do
+    all_tests
+    |> Enum.filter(fn test_file ->
+      test_args = get_test_args_for_file(test_file)
+      {_output, exit_code} = System.cmd("mix", test_args ++ [test_file], stderr_to_stdout: true)
+      exit_code != 0
+    end)
+  end
+
+  defp add_all_passing_tests(scion_tests, w3c_tests, current_baseline) do
+    IO.puts("✅ All tests pass! Adding to baseline...")
+    do_update_baseline(MapSet.new(scion_tests), MapSet.new(w3c_tests), current_baseline)
+  end
+
+  defp handle_mixed_results(scion_tests, w3c_tests, failed_tests, current_baseline) do
+    IO.puts("❌ The following tests are failing and won't be added:")
+    Enum.each(failed_tests, &IO.puts("  - #{&1}"))
+
+    passing_scion = scion_tests -- failed_tests
+    passing_w3c = w3c_tests -- failed_tests
+
+    add_only_passing_tests(passing_scion, passing_w3c, current_baseline)
+  end
+
+  defp add_only_passing_tests(passing_scion, passing_w3c, current_baseline) do
+    if length(passing_scion) > 0 or length(passing_w3c) > 0 do
+      IO.puts("\n✅ Adding only the passing tests:")
+      Enum.each(passing_scion ++ passing_w3c, &IO.puts("  + #{&1}"))
+
+      do_update_baseline(
+        MapSet.new(passing_scion),
+        MapSet.new(passing_w3c),
+        current_baseline
+      )
     end
   end
 
@@ -349,69 +371,98 @@ defmodule Mix.Tasks.Test.Baseline do
          scion_summary,
          w3c_summary
        ) do
+    print_analysis_header()
+    show_scion_analysis(passing_scion_tests, new_scion_tests, current_baseline, scion_summary)
+    show_w3c_analysis(passing_w3c_tests, new_w3c_tests, current_baseline, w3c_summary)
+    show_new_tests_summary(new_scion_tests, new_w3c_tests, current_baseline)
+  end
+
+  defp print_analysis_header do
     IO.puts("\n" <> String.duplicate("=", 60))
     IO.puts("📊 DETAILED TEST ANALYSIS")
     IO.puts(String.duplicate("=", 60))
+  end
 
-    # SCION tests analysis
+  defp show_scion_analysis(passing_tests, new_tests, baseline, summary) do
     IO.puts("\n🔵 SCION Tests:")
-    IO.puts("  Summary: #{scion_summary}")
-    IO.puts("  Total passing files detected: #{length(passing_scion_tests)}")
-    IO.puts("  Currently in baseline: #{length(current_baseline["scion_tests"] || [])}")
-    IO.puts("  New passing files: #{MapSet.size(new_scion_tests)}")
+    IO.puts("  Summary: #{summary}")
+    IO.puts("  Total passing files detected: #{length(passing_tests)}")
+    IO.puts("  Currently in baseline: #{length(baseline["scion_tests"] || [])}")
+    IO.puts("  New passing files: #{MapSet.size(new_tests)}")
 
-    if length(passing_scion_tests) > 0 do
-      IO.puts("\n  ✅ All passing SCION test files:")
+    show_test_files_list(passing_tests, new_tests, "SCION")
+  end
 
-      Enum.each(passing_scion_tests, fn test ->
-        marker = if MapSet.member?(new_scion_tests, test), do: "🆕", else: "  "
-        IO.puts("    #{marker} #{test}")
-      end)
-    end
-
-    # W3C tests analysis  
+  defp show_w3c_analysis(passing_tests, new_tests, baseline, summary) do
     IO.puts("\n🔵 W3C Tests:")
-    IO.puts("  Summary: #{w3c_summary}")
-    IO.puts("  Total passing files detected: #{length(passing_w3c_tests)}")
-    IO.puts("  Currently in baseline: #{length(current_baseline["w3c_tests"] || [])}")
-    IO.puts("  New passing files: #{MapSet.size(new_w3c_tests)}")
+    IO.puts("  Summary: #{summary}")
+    IO.puts("  Total passing files detected: #{length(passing_tests)}")
+    IO.puts("  Currently in baseline: #{length(baseline["w3c_tests"] || [])}")
+    IO.puts("  New passing files: #{MapSet.size(new_tests)}")
 
-    if length(passing_w3c_tests) > 0 do
-      IO.puts("\n  ✅ All passing W3C test files:")
+    show_test_files_list(passing_tests, new_tests, "W3C")
+  end
 
-      Enum.each(passing_w3c_tests, fn test ->
-        marker = if MapSet.member?(new_w3c_tests, test), do: "🆕", else: "  "
-        IO.puts("    #{marker} #{test}")
-      end)
-    end
+  defp show_test_files_list(passing_tests, new_tests, test_type) do
+    if Enum.empty?(passing_tests),
+      do: :ok,
+      else: display_test_files(passing_tests, new_tests, test_type)
+  end
 
-    # Show new tests specifically
-    if MapSet.size(new_scion_tests) > 0 or MapSet.size(new_w3c_tests) > 0 do
-      IO.puts("\n" <> String.duplicate("-", 60))
-      IO.puts("🆕 NEW PASSING TESTS (not in baseline)")
-      IO.puts(String.duplicate("-", 60))
+  defp display_test_files(passing_tests, new_tests, test_type) do
+    IO.puts("\n  ✅ All passing #{test_type} test files:")
+    Enum.each(passing_tests, &print_test_file(&1, new_tests))
+  end
 
-      if MapSet.size(new_scion_tests) > 0 do
-        IO.puts("\n📈 New SCION tests (#{MapSet.size(new_scion_tests)}):")
+  defp print_test_file(test, new_tests) do
+    marker = if MapSet.member?(new_tests, test), do: "🆕", else: "  "
+    IO.puts("    #{marker} #{test}")
+  end
 
-        new_scion_tests
-        |> Enum.sort()
-        |> Enum.each(&IO.puts("  + #{&1}"))
-      end
-
-      if MapSet.size(new_w3c_tests) > 0 do
-        IO.puts("\n📈 New W3C tests (#{MapSet.size(new_w3c_tests)}):")
-
-        new_w3c_tests
-        |> Enum.sort()
-        |> Enum.each(&IO.puts("  + #{&1}"))
-      end
-
+  defp show_new_tests_summary(new_scion_tests, new_w3c_tests, current_baseline) do
+    if has_new_tests?(new_scion_tests, new_w3c_tests) do
+      print_new_tests_header()
+      show_new_scion_tests(new_scion_tests)
+      show_new_w3c_tests(new_w3c_tests)
       show_new_tests_prompt(new_scion_tests, new_w3c_tests, current_baseline)
     else
-      IO.puts("\n✅ No new passing tests found. Baseline is up to date!")
-      IO.puts("🔄 Run 'mix test.regression' to verify the current baseline.")
+      show_up_to_date_message()
     end
+  end
+
+  defp has_new_tests?(new_scion_tests, new_w3c_tests) do
+    MapSet.size(new_scion_tests) > 0 or MapSet.size(new_w3c_tests) > 0
+  end
+
+  defp print_new_tests_header do
+    IO.puts("\n" <> String.duplicate("-", 60))
+    IO.puts("🆕 NEW PASSING TESTS (not in baseline)")
+    IO.puts(String.duplicate("-", 60))
+  end
+
+  defp show_new_scion_tests(new_scion_tests) do
+    if MapSet.size(new_scion_tests) > 0 do
+      IO.puts("\n📈 New SCION tests (#{MapSet.size(new_scion_tests)}):")
+
+      new_scion_tests
+      |> Enum.sort()
+      |> Enum.each(&IO.puts("  + #{&1}"))
+    end
+  end
+
+  defp show_new_w3c_tests(new_w3c_tests) do
+    if MapSet.size(new_w3c_tests) > 0 do
+      IO.puts("\n📈 New W3C tests (#{MapSet.size(new_w3c_tests)}):")
+
+      new_w3c_tests
+      |> Enum.sort()
+      |> Enum.each(&IO.puts("  + #{&1}"))
+    end
+  end
+
+  defp show_up_to_date_message do
+    IO.puts("\n✅ No new passing tests found. Baseline is up to date!")
+    IO.puts("🔄 Run 'mix test.regression' to verify the current baseline.")
   end
 
   defp show_new_tests_prompt(new_scion_tests, new_w3c_tests, current_baseline) do
@@ -426,13 +477,13 @@ defmodule Mix.Tasks.Test.Baseline do
           answer when answer in ["y", "yes"] ->
             do_update_baseline(new_scion_tests, new_w3c_tests, current_baseline)
 
-          _ ->
+          _other_answer ->
             show_manual_instructions()
         end
     end
   end
 
-  defp show_manual_instructions() do
+  defp show_manual_instructions do
     IO.puts("\n📝 To manually add tests, you can:")
     IO.puts("  1. Edit test/passing_tests.json directly, or")
     IO.puts("  2. Use: mix test.baseline add <test_file> [<test_file2> ...]")

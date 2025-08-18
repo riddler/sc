@@ -72,7 +72,9 @@ defmodule SC.Document.ValidatorEdgeCasesTest do
       {:error, errors, _warnings} = Validator.validate(document)
 
       assert length(errors) == 1
-      assert hd(errors) =~ "State 'parent' specifies initial='nonexistent' but 'nonexistent' is not a direct child"
+
+      assert hd(errors) =~
+               "State 'parent' specifies initial='nonexistent' but 'nonexistent' is not a direct child"
     end
 
     test "handles unreachable state from first state when no initial specified" do
@@ -95,7 +97,11 @@ defmodule SC.Document.ValidatorEdgeCasesTest do
 
       # Will have multiple warnings: the initial state warning plus unreachability warnings
       assert length(warnings) >= 1
-      assert Enum.any?(warnings, &(&1 =~ "Document initial state 'nested_initial' is not a top-level state"))
+
+      assert Enum.any?(
+               warnings,
+               &(&1 =~ "Document initial state 'nested_initial' is not a top-level state")
+             )
     end
 
     test "handles missing parent reference during reachability (edge case)" do
@@ -133,7 +139,7 @@ defmodule SC.Document.ValidatorEdgeCasesTest do
       document = %Document{states: [state1, state2]}
 
       {:error, _errors, _warnings} = Validator.validate(document)
-      
+
       # Original document should be unchanged (no lookup maps built)
       assert map_size(document.state_lookup) == 0
     end
@@ -179,7 +185,7 @@ defmodule SC.Document.ValidatorEdgeCasesTest do
       {:ok, _document, warnings} = Validator.validate(document)
 
       # No warnings - both states are reachable
-      assert length(warnings) == 0
+      assert Enum.empty?(warnings)
     end
   end
 end

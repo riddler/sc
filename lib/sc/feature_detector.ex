@@ -20,7 +20,6 @@ defmodule SC.FeatureDetector do
       iex> xml = "<scxml><state id='s1'><transition event='go' target='s2'/></state></scxml>"
       iex> SC.FeatureDetector.detect_features(xml)
       #MapSet<[:basic_states, :event_transitions]>
-      
       iex> {:ok, document} = SC.Parser.SCXML.parse(xml)
       iex> SC.FeatureDetector.detect_features(document)
       #MapSet<[:basic_states, :event_transitions]>
@@ -99,7 +98,7 @@ defmodule SC.FeatureDetector do
       |> Enum.filter(fn feature ->
         case Map.get(registry, feature, :unsupported) do
           :supported -> false
-          _ -> true
+          _unsupported -> true
         end
       end)
       |> MapSet.new()
@@ -178,7 +177,7 @@ defmodule SC.FeatureDetector do
     end
   end
 
-  # Private functions for Document-based detection  
+  # Private functions for Document-based detection
   defp detect_features_from_document(%Document{} = document) do
     features = MapSet.new()
 
@@ -221,7 +220,7 @@ defmodule SC.FeatureDetector do
       :parallel -> MapSet.put(features, :parallel_states)
       :final -> MapSet.put(features, :final_states)
       :history -> MapSet.put(features, :history_states)
-      _ -> features
+      _other_type -> features
     end
   end
 

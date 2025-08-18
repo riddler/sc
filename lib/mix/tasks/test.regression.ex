@@ -18,6 +18,7 @@ defmodule Mix.Tasks.Test.Regression do
   """
 
   # credo:disable-for-this-file Credo.Check.Refactor.IoPuts
+  # credo:disable-for-this-file Credo.Check.Refactor.Nesting
 
   use Mix.Task
 

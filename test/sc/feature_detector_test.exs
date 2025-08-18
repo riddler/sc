@@ -1,7 +1,7 @@
 defmodule SC.FeatureDetectorTest do
   use ExUnit.Case
 
-  alias SC.FeatureDetector
+  alias SC.{Document, FeatureDetector, Parser, State}
 
   describe "feature detection from XML" do
     test "detects basic states and transitions" do
@@ -246,7 +246,7 @@ defmodule SC.FeatureDetectorTest do
       </scxml>
       """
 
-      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      {:ok, document} = Parser.SCXML.parse(xml)
       features = FeatureDetector.detect_features(document)
 
       assert MapSet.member?(features, :basic_states)
@@ -264,7 +264,7 @@ defmodule SC.FeatureDetectorTest do
       </scxml>
       """
 
-      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      {:ok, document} = Parser.SCXML.parse(xml)
       features = FeatureDetector.detect_features(document)
 
       assert MapSet.member?(features, :basic_states)
@@ -282,7 +282,7 @@ defmodule SC.FeatureDetectorTest do
       </scxml>
       """
 
-      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      {:ok, document} = Parser.SCXML.parse(xml)
       features = FeatureDetector.detect_features(document)
 
       assert MapSet.member?(features, :basic_states)
@@ -314,7 +314,7 @@ defmodule SC.FeatureDetectorTest do
       </scxml>
       """
 
-      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      {:ok, document} = Parser.SCXML.parse(xml)
       features = FeatureDetector.detect_features(document)
 
       assert MapSet.member?(features, :basic_states)
@@ -329,7 +329,7 @@ defmodule SC.FeatureDetectorTest do
       </scxml>
       """
 
-      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      {:ok, document} = Parser.SCXML.parse(xml)
       features = FeatureDetector.detect_features(document)
 
       assert MapSet.member?(features, :basic_states)
@@ -347,7 +347,7 @@ defmodule SC.FeatureDetectorTest do
       </scxml>
       """
 
-      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      {:ok, document} = Parser.SCXML.parse(xml)
       features = FeatureDetector.detect_features(document)
 
       assert MapSet.member?(features, :basic_states)
@@ -364,7 +364,7 @@ defmodule SC.FeatureDetectorTest do
       </scxml>
       """
 
-      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      {:ok, document} = Parser.SCXML.parse(xml)
       features = FeatureDetector.detect_features(document)
 
       assert MapSet.member?(features, :basic_states)
@@ -389,8 +389,8 @@ defmodule SC.FeatureDetectorTest do
 
     test "handles unknown state type gracefully" do
       # Create a state with an unknown type (this would be an edge case in practice)
-      state = %SC.State{id: "test", type: :unknown_type}
-      document = %SC.Document{states: [state]}
+      state = %State{id: "test", type: :unknown_type}
+      document = %Document{states: [state]}
 
       features = FeatureDetector.detect_features(document)
 
