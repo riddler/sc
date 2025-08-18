@@ -1,7 +1,7 @@
 defmodule SC.FeatureDetector do
   @moduledoc """
   Detects SCXML features used in documents to enable proper test validation.
-  
+
   This module analyzes SCXML documents (either raw XML strings or parsed SC.Document
   structures) to identify which SCXML features are being used. This enables the test
   framework to fail appropriately when tests depend on unsupported features.
@@ -11,12 +11,12 @@ defmodule SC.FeatureDetector do
 
   @doc """
   Detects features used in an SCXML document.
-  
+
   Takes either a raw XML string or a parsed SC.Document and returns a MapSet
   of feature atoms representing the SCXML features detected in the document.
-  
+
   ## Examples
-  
+
       iex> xml = "<scxml><state id='s1'><transition event='go' target='s2'/></state></scxml>"
       iex> SC.FeatureDetector.detect_features(xml)
       #MapSet<[:basic_states, :event_transitions]>
@@ -36,7 +36,7 @@ defmodule SC.FeatureDetector do
 
   @doc """
   Returns a registry of all known SCXML features with their support status.
-  
+
   Features are categorized as:
   - `:supported` - Fully implemented and working
   - `:unsupported` - Not yet implemented
@@ -52,30 +52,30 @@ defmodule SC.FeatureDetector do
       parallel_states: :supported,
       final_states: :supported,
       initial_attributes: :supported,
-      
+
       # Conditional features (unsupported)
       conditional_transitions: :unsupported,
-      
+
       # Data model features (unsupported)
       datamodel: :unsupported,
       data_elements: :unsupported,
       script_elements: :unsupported,
       assign_elements: :unsupported,
-      
+
       # Executable content (unsupported)
       onentry_actions: :unsupported,
       onexit_actions: :unsupported,
       send_elements: :unsupported,
       log_elements: :unsupported,
       raise_elements: :unsupported,
-      
+
       # Advanced transitions (unsupported)
       targetless_transitions: :unsupported,
       internal_transitions: :unsupported,
-      
+
       # History (unsupported)
       history_states: :unsupported,
-      
+
       # Advanced attributes (unsupported)
       send_idlocation: :unsupported,
       event_expressions: :unsupported,
@@ -85,15 +85,16 @@ defmodule SC.FeatureDetector do
 
   @doc """
   Checks if all detected features are supported.
-  
+
   Returns `{:ok, features}` if all features are supported,
   or `{:error, unsupported_features}` if any unsupported features are detected.
   """
-  @spec validate_features(MapSet.t(atom())) :: {:ok, MapSet.t(atom())} | {:error, MapSet.t(atom())}
+  @spec validate_features(MapSet.t(atom())) ::
+          {:ok, MapSet.t(atom())} | {:error, MapSet.t(atom())}
   def validate_features(detected_features) do
     registry = feature_registry()
-    
-    unsupported = 
+
+    unsupported =
       detected_features
       |> Enum.filter(fn feature ->
         case Map.get(registry, feature, :unsupported) do
@@ -102,7 +103,7 @@ defmodule SC.FeatureDetector do
         end
       end)
       |> MapSet.new()
-    
+
     if MapSet.size(unsupported) == 0 do
       {:ok, detected_features}
     else
@@ -113,7 +114,7 @@ defmodule SC.FeatureDetector do
   # Private functions for XML-based detection
   defp detect_features_from_xml(xml) do
     features = MapSet.new()
-    
+
     features
     |> detect_xml_elements(xml)
     |> detect_xml_attributes(xml)
@@ -149,11 +150,13 @@ defmodule SC.FeatureDetector do
   defp detect_compound_states(features, xml) do
     # Check if any state has an initial attribute or nested states
     cond do
-      Regex.match?(~r/<state[^>]+initial\s*=/, xml) -> 
+      Regex.match?(~r/<state[^>]+initial\s*=/, xml) ->
         MapSet.put(features, :compound_states)
-      Regex.match?(~r/<state[^>]*>.*<state/, xml) -> 
+
+      Regex.match?(~r/<state[^>]*>.*<state/, xml) ->
         MapSet.put(features, :compound_states)
-      true -> 
+
+      true ->
         features
     end
   end
@@ -178,7 +181,7 @@ defmodule SC.FeatureDetector do
   # Private functions for Document-based detection  
   defp detect_features_from_document(%Document{} = document) do
     features = MapSet.new()
-    
+
     features
     |> detect_document_elements(document)
     |> detect_state_features(document.states)
@@ -199,7 +202,8 @@ defmodule SC.FeatureDetector do
     Enum.reduce(states, features, fn state, acc ->
       acc
       |> detect_single_state_features(state)
-      |> detect_state_features(state.states)  # Recursively check nested states
+      # Recursively check nested states
+      |> detect_state_features(state.states)
     end)
   end
 
@@ -236,7 +240,7 @@ defmodule SC.FeatureDetector do
   defp detect_transition_features(features, %Document{} = document) do
     # Collect all transitions from all states
     all_transitions = collect_all_transitions(document.states)
-    
+
     Enum.reduce(all_transitions, features, fn transition, acc ->
       detect_single_transition_features(acc, transition)
     end)

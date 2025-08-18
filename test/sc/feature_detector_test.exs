@@ -178,13 +178,13 @@ defmodule SC.FeatureDetectorTest do
   describe "feature validation" do
     test "validates supported features successfully" do
       supported_features = MapSet.new([:basic_states, :event_transitions, :compound_states])
-      
+
       assert {:ok, ^supported_features} = FeatureDetector.validate_features(supported_features)
     end
 
     test "fails validation for unsupported features" do
       mixed_features = MapSet.new([:basic_states, :datamodel, :conditional_transitions])
-      
+
       assert {:error, unsupported} = FeatureDetector.validate_features(mixed_features)
       assert MapSet.member?(unsupported, :datamodel)
       assert MapSet.member?(unsupported, :conditional_transitions)
@@ -193,7 +193,7 @@ defmodule SC.FeatureDetectorTest do
 
     test "fails validation for unknown features" do
       unknown_features = MapSet.new([:basic_states, :unknown_feature])
-      
+
       assert {:error, unsupported} = FeatureDetector.validate_features(unknown_features)
       assert MapSet.member?(unsupported, :unknown_feature)
     end
@@ -220,14 +220,14 @@ defmodule SC.FeatureDetectorTest do
 
     test "registry contains expected number of features" do
       registry = FeatureDetector.feature_registry()
-      
+
       # Should have a reasonable number of features defined
       assert map_size(registry) >= 20
-      
+
       # Should have both supported and unsupported features
       supported_count = registry |> Enum.count(fn {_k, v} -> v == :supported end)
       unsupported_count = registry |> Enum.count(fn {_k, v} -> v == :unsupported end)
-      
+
       assert supported_count > 0
       assert unsupported_count > 0
     end

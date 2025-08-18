@@ -4,7 +4,7 @@ defmodule SC.Case do
 
   Provides utilities for testing state machine behavior against both
   SCION and W3C test suites using the SC.Interpreter.
-  
+
   Now includes feature detection to fail tests that depend on unsupported
   SCXML features, preventing false positive test results.
   """
@@ -26,7 +26,7 @@ defmodule SC.Case do
   - description: Test description (for debugging)
   - expected_initial_config: List of expected initial active state IDs
   - events: List of {event_map, expected_states} tuples
-  
+
   Now includes feature detection - will fail with descriptive error if the test
   depends on unsupported SCXML features, preventing false positive results.
   """
@@ -35,29 +35,29 @@ defmodule SC.Case do
   def test_scxml(xml, description, expected_initial_config, events) do
     # Detect features used in the SCXML document
     detected_features = FeatureDetector.detect_features(xml)
-    
+
     # Validate that all detected features are supported
     case FeatureDetector.validate_features(detected_features) do
       {:ok, _supported_features} ->
         # All features are supported, proceed with test
         run_scxml_test(xml, description, expected_initial_config, events)
-        
+
       {:error, unsupported_features} ->
         # Test uses unsupported features - fail with descriptive message
         unsupported_list = unsupported_features |> Enum.sort() |> Enum.join(", ")
-        
+
         ExUnit.Assertions.flunk("""
         Test depends on unsupported SCXML features: #{unsupported_list}
-        
+
         This test cannot pass until these features are implemented in the SC library.
         Detected features: #{detected_features |> Enum.sort() |> Enum.join(", ")}
-        
+
         To see which features are supported, check SC.FeatureDetector.feature_registry/0
         Test description: #{description}
         """)
     end
   end
-  
+
   defp run_scxml_test(xml, _description, expected_initial_config, events) do
     # Parse and initialize the state chart
     {:ok, document} = SCXML.parse(xml)
