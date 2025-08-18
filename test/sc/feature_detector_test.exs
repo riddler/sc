@@ -271,5 +271,152 @@ defmodule SC.FeatureDetectorTest do
       assert MapSet.member?(features, :final_states)
       assert MapSet.member?(features, :event_transitions)
     end
+
+    test "detects parallel states from parsed document" do
+      xml = """
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="parallel_state">
+        <parallel id="parallel_state">
+          <state id="branch1"/>
+          <state id="branch2"/>
+        </parallel>
+      </scxml>
+      """
+
+      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      features = FeatureDetector.detect_features(document)
+
+      assert MapSet.member?(features, :basic_states)
+      assert MapSet.member?(features, :parallel_states)
+    end
+
+    test "detects history states from XML directly" do
+      xml = """
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
+        <state id="s1">
+          <history id="hist1"/>
+        </state>
+      </scxml>
+      """
+
+      features = FeatureDetector.detect_features(xml)
+
+      assert MapSet.member?(features, :basic_states)
+      assert MapSet.member?(features, :history_states)
+    end
+
+    test "detects datamodel elements from parsed document" do
+      xml = """
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
+        <datamodel>
+          <data id="x" expr="5"/>
+        </datamodel>
+        <state id="s1"/>
+      </scxml>
+      """
+
+      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      features = FeatureDetector.detect_features(document)
+
+      assert MapSet.member?(features, :basic_states)
+      assert MapSet.member?(features, :datamodel)
+      assert MapSet.member?(features, :data_elements)
+    end
+
+    test "handles document with no datamodel elements" do
+      xml = """
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
+        <state id="s1"/>
+      </scxml>
+      """
+
+      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      features = FeatureDetector.detect_features(document)
+
+      assert MapSet.member?(features, :basic_states)
+      refute MapSet.member?(features, :datamodel)
+      refute MapSet.member?(features, :data_elements)
+    end
+
+    test "detects conditional transitions from parsed document" do
+      xml = """
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
+        <state id="s1">
+          <transition event="check" target="s2" cond="x > 5"/>
+        </state>
+        <state id="s2"/>
+      </scxml>
+      """
+
+      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      features = FeatureDetector.detect_features(document)
+
+      assert MapSet.member?(features, :basic_states)
+      assert MapSet.member?(features, :event_transitions)
+      assert MapSet.member?(features, :conditional_transitions)
+    end
+
+    test "detects targetless transitions from parsed document" do
+      xml = """
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
+        <state id="s1">
+          <transition event="internal_event"/>
+        </state>
+      </scxml>
+      """
+
+      {:ok, document} = SC.Parser.SCXML.parse(xml)
+      features = FeatureDetector.detect_features(document)
+
+      assert MapSet.member?(features, :basic_states)
+      assert MapSet.member?(features, :event_transitions)
+      assert MapSet.member?(features, :targetless_transitions)
+    end
+  end
+
+  describe "edge cases" do
+    test "detects compound states via nested state XML pattern (multiline match)" do
+      xml = """
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+        <state id="outer"><state id="inner"/></state>
+      </scxml>
+      """
+
+      features = FeatureDetector.detect_features(xml)
+
+      assert MapSet.member?(features, :basic_states)
+      assert MapSet.member?(features, :compound_states)
+    end
+
+    test "handles unknown state type gracefully" do
+      # Create a state with an unknown type (this would be an edge case in practice)
+      state = %SC.State{id: "test", type: :unknown_type}
+      document = %SC.Document{states: [state]}
+
+      features = FeatureDetector.detect_features(document)
+
+      # Should not crash and should not add any specific state type features
+      refute MapSet.member?(features, :basic_states)
+      refute MapSet.member?(features, :compound_states)
+      refute MapSet.member?(features, :parallel_states)
+      refute MapSet.member?(features, :final_states)
+    end
+
+    test "handles raise elements detection" do
+      xml = """
+      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
+        <state id="s1">
+          <onentry>
+            <raise event="internal_event"/>
+          </onentry>
+        </state>
+      </scxml>
+      """
+
+      features = FeatureDetector.detect_features(xml)
+
+      assert MapSet.member?(features, :basic_states)
+      assert MapSet.member?(features, :onentry_actions)
+      assert MapSet.member?(features, :raise_elements)
+    end
   end
 end
