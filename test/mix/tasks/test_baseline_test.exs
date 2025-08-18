@@ -15,9 +15,9 @@ defmodule Mix.Tasks.Test.BaselineTest do
       Finished in 0.5 seconds (0.3s async, 0.2s sync)
       290 tests, 97 failures, 163 excluded
       """
-      
+
       result = Baseline.extract_test_summary(output)
-      
+
       # 290 total - 163 excluded = 127 tests run
       # 127 tests run - 97 failures = 30 passing
       assert result == "30/127 passing"
@@ -32,9 +32,9 @@ defmodule Mix.Tasks.Test.BaselineTest do
       Finished in 0.1 seconds (0.1s async, 0.0s sync)
       8 tests, 0 failures
       """
-      
+
       result = Baseline.extract_test_summary(output)
-      
+
       # 8 total - 0 failures = 8 passing
       assert result == "8/8 passing"
     end
@@ -49,9 +49,9 @@ defmodule Mix.Tasks.Test.BaselineTest do
       Finished in 0.2 seconds (0.2s async, 0.0s sync)
       290 tests, 0 failures, 276 excluded
       """
-      
+
       result = Baseline.extract_test_summary(output)
-      
+
       # 290 total - 276 excluded = 14 tests run
       # 14 tests run - 0 failures = 14 passing
       assert result == "14/14 passing"
@@ -63,16 +63,16 @@ defmodule Mix.Tasks.Test.BaselineTest do
       Finished in 0.1 seconds
       1 test, 1 failure, 0 excluded
       """
-      
+
       result1 = Baseline.extract_test_summary(output1)
       assert result1 == "0/1 passing"
-      
+
       # Test mixed singular/plural
-      output2 = """  
+      output2 = """
       Finished in 0.1 seconds
       2 tests, 1 failure, 0 excluded
       """
-      
+
       result2 = Baseline.extract_test_summary(output2)
       assert result2 == "1/2 passing"
     end
@@ -85,9 +85,9 @@ defmodule Mix.Tasks.Test.BaselineTest do
       Finished in 0.0 seconds (0.0s async, 0.0s sync)
       100 tests, 0 failures, 100 excluded
       """
-      
+
       result = Baseline.extract_test_summary(output)
-      
+
       # 100 total - 100 excluded = 0 tests run
       # 0 tests run - 0 failures = 0 passing
       assert result == "0/0 passing"
@@ -95,16 +95,16 @@ defmodule Mix.Tasks.Test.BaselineTest do
 
     test "handles output with extra whitespace and line breaks" do
       output = """
-      
+
       Running ExUnit with seed: 999
-      
+
       ..
-      
+
       Finished in 0.1 seconds
       2   tests,   1   failure,   0   excluded
-      
+
       """
-      
+
       result = Baseline.extract_test_summary(output)
       assert result == "1/2 passing"
     end
@@ -114,7 +114,7 @@ defmodule Mix.Tasks.Test.BaselineTest do
       This is not valid test output
       No test summary line here
       """
-      
+
       result = Baseline.extract_test_summary(output)
       assert result == "Unable to parse results"
     end
@@ -128,15 +128,15 @@ defmodule Mix.Tasks.Test.BaselineTest do
       output = """
       Running ExUnit with seed: 123
       Some other line with 5 tests, 2 failures mentioned
-      
+
       More output here...
-      
+
       Finished in 0.5 seconds (0.3s async, 0.2s sync)
       50 tests, 10 failures, 20 excluded
       """
-      
+
       result = Baseline.extract_test_summary(output)
-      
+
       # Should match the last/actual summary line
       # 50 total - 20 excluded = 30 tests run  
       # 30 tests run - 10 failures = 20 passing
@@ -164,7 +164,7 @@ defmodule Mix.Tasks.Test.BaselineTest do
       Finished in 0.02 seconds (0.00s async, 0.02s sync)
       290 tests, 97 failures, 163 excluded
       """
-      
+
       result = Baseline.extract_test_summary(output)
       assert result == "30/127 passing"
     end

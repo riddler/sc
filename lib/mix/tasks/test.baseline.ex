@@ -108,5 +108,4 @@ defmodule Mix.Tasks.Test.Baseline do
         end
     end
   end
-
 end

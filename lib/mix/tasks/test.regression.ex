@@ -157,5 +157,4 @@ defmodule Mix.Tasks.Test.Regression do
         []
     end
   end
-
 end
