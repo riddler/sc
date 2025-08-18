@@ -84,12 +84,17 @@ Also use this initial Elixir implementation as reference: https://github.com/cam
 - **`SC.Parser.SCXML.StateStack`** - Manages parsing state stack for hierarchical document construction
 
 ### Validation and Optimization (Validate + Optimize Phases)
-- **`SC.Document.Validator`** - Document validation and optimization
+- **`SC.Validator`** - Main validation orchestrator (refactored from monolithic `SC.Document.Validator`)
+  - **Modular architecture**: Split into focused sub-validators for maintainability
   - **Validation**: Structural correctness, semantic consistency, reference validation
   - **Optimization**: Builds O(1) lookup maps via `finalize/2` for valid documents only
   - Returns `{:ok, optimized_document, warnings}` or `{:error, errors, warnings}`
   - **Clean architecture**: Only optimizes documents that pass validation
-  - Uses `find_state_by_id_linear/2` during validation, switches to O(1) after optimization
+- **`SC.Validator.StateValidator`** - State ID uniqueness and validation
+- **`SC.Validator.TransitionValidator`** - Transition target validation
+- **`SC.Validator.InitialStateValidator`** - All initial state constraints (attributes, elements, conflicts)
+- **`SC.Validator.ReachabilityAnalyzer`** - State reachability graph analysis  
+- **`SC.Validator.Utils`** - Shared utilities across validators
 
 ### Interpreter and Runtime  
 - **`SC.Interpreter`** - Core SCXML interpreter with synchronous API
@@ -119,7 +124,7 @@ The implementation follows a clean **Parse → Validate → Optimize** architect
 {:ok, document} = SC.Parser.SCXML.parse(xml_string)
 
 # 2. Validate + Optimize Phase: Check semantics + build lookup maps
-{:ok, optimized_document, warnings} = SC.Document.Validator.validate(document)
+{:ok, optimized_document, warnings} = SC.Validator.validate(document)
 
 # 3. Interpret Phase: Use optimized document for runtime
 {:ok, state_chart} = SC.Interpreter.initialize(optimized_document)
@@ -131,7 +136,12 @@ The implementation follows a clean **Parse → Validate → Optimize** architect
 - Only valid documents get expensive optimization treatment
 - Clear separation of concerns across phases
 
-### Test Infrastructure
+### Feature Detection and Test Infrastructure
+- **`SC.FeatureDetector`** - Detects SCXML features used in documents
+  - Enables proper test validation by failing tests that depend on unsupported features
+  - Prevents false positive test results from unsupported feature usage
+  - Supports both XML string and parsed document analysis
+  - Tracks feature support status (`:supported`, `:unsupported`, `:partial`)
 - **`SC.Case`** - Test case template module for SCXML testing
   - Provides `test_scxml/4` function for testing state machine behavior
   - Uses SC.Interpreter for document initialization and event processing
@@ -217,11 +227,13 @@ XML content within triple quotes uses 4-space base indentation.
 **Working Features:**
 - ✅ Basic state transitions (basic1, basic2 tests pass)
 - ✅ **Compound states** with automatic initial child entry
+- ✅ **Initial state elements** (`<initial>` with transitions) - W3C compliant
 - ✅ Hierarchical states with O(1) optimized lookups
 - ✅ Event-driven state changes
-- ✅ Initial state configuration
+- ✅ Initial state configuration (both `initial="id"` attributes and `<initial>` elements)
 - ✅ Document validation and error reporting
 - ✅ **Parse → Validate → Optimize** architecture
+- ✅ **Modular validator architecture** with focused sub-validators
 
 **Main Failure Categories:**
 - **Document parsing failures**: Complex SCXML with parallel states, history states, executable content
@@ -251,6 +263,9 @@ XML content within triple quotes uses 4-space base indentation.
 - Active state tracking with hierarchical ancestor computation using O(1) lookups
 - **Git pre-push hook** for automated local validation workflow
 - 95%+ test coverage maintained
+- **Initial state elements** (`<initial>` with `<transition>`) with comprehensive validation
+- **Modular validator architecture** - refactored from 386-line monolith into focused modules
+- **Full Credo compliance** - all 43 alias-related issues resolved
 
 🚧 **Future Extensions:**
 - Parallel states (`<parallel>`) - major gap in current implementation
