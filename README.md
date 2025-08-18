@@ -46,7 +46,7 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 - History states (`<history>`)
 - Conditional transitions with expression evaluation (`cond` attribute)
 - Internal and targetless transitions
-- Executable content (`<script>`, `<assign>`, `<send>`, `<onentry>`, `<onexit>`, etc.)
+- (refactored from monolithic `SC.Document.Validator`) Executable content (`<script>`, `<assign>`, `<send>`, `<onentry>`, `<onexit>`, etc.)
 - Expression evaluation and datamodel support
 - Enhanced validation for complex SCXML constructs
 
@@ -372,7 +372,7 @@ git push origin feature-branch
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
 ## Acknowledgments
 
