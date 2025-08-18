@@ -15,6 +15,7 @@
   ],
   "internal_tests": [
     "test/sc_test.exs",
-    "test/sc/**/*_test.exs"
+    "test/sc/**/*_test.exs",
+    "test/mix/**/*_test.exs"
   ]
 }

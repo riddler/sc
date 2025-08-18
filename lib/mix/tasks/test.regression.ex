@@ -88,8 +88,20 @@ defmodule Mix.Tasks.Test.Regression do
     """)
   end
 
-  defp load_passing_tests do
-    case File.read("test/passing_tests.json") do
+  @doc """
+  Loads the passing tests registry from test/passing_tests.json.
+
+  Returns `{:ok, tests_map}` if successful, or `{:error, reason}` if the file
+  cannot be read or contains invalid JSON.
+
+  ## Examples
+
+      iex> Mix.Tasks.Test.Regression.load_passing_tests()
+      {:ok, %{"internal_tests" => [...], "scion_tests" => [...], "w3c_tests" => [...]}}
+
+  """
+  def load_passing_tests(path \\ "test/passing_tests.json") do
+    case File.read(path) do
       {:ok, content} ->
         case Jason.decode(content) do
           {:ok, tests} -> {:ok, tests}
@@ -106,7 +118,23 @@ defmodule Mix.Tasks.Test.Regression do
     System.cmd("mix", args, stderr_to_stdout: true)
   end
 
-  defp expand_test_patterns(test_patterns) when is_list(test_patterns) do
+  @doc """
+  Expands a list of test patterns, supporting glob wildcards.
+
+  Takes a list of test file patterns (which may include glob patterns like
+  `test/sc/**/*_test.exs`) and returns a sorted list of actual test files
+  that exist on the filesystem.
+
+  ## Examples
+
+      iex> Mix.Tasks.Test.Regression.expand_test_patterns(["test/sc_test.exs"])
+      ["test/sc_test.exs"]
+
+      iex> Mix.Tasks.Test.Regression.expand_test_patterns(["test/sc/**/*_test.exs"])
+      ["test/sc/parser/scxml_test.exs", "test/sc/document_test.exs", ...]
+
+  """
+  def expand_test_patterns(test_patterns) when is_list(test_patterns) do
     test_patterns
     |> Enum.flat_map(&expand_single_pattern/1)
     |> Enum.sort()
@@ -129,4 +157,5 @@ defmodule Mix.Tasks.Test.Regression do
         []
     end
   end
+
 end
