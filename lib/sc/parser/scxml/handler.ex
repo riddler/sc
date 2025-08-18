@@ -59,6 +59,9 @@ defmodule SC.Parser.SCXML.Handler do
       "final" ->
         handle_final_start(attributes, location, state)
 
+      "initial" ->
+        handle_initial_start(attributes, location, state)
+
       "transition" ->
         handle_transition_start(attributes, location, state)
 
@@ -80,7 +83,7 @@ defmodule SC.Parser.SCXML.Handler do
       "scxml" ->
         {:ok, state}
 
-      state_type when state_type in ["state", "parallel", "final"] ->
+      state_type when state_type in ["state", "parallel", "final", "initial"] ->
         StateStack.handle_state_end(state)
 
       "transition" ->
@@ -184,6 +187,23 @@ defmodule SC.Parser.SCXML.Handler do
     }
 
     {:ok, StateStack.push_element(updated_state, "final", final_element)}
+  end
+
+  defp handle_initial_start(attributes, location, state) do
+    initial_element =
+      ElementBuilder.build_initial_state(
+        attributes,
+        location,
+        state.xml_string,
+        state.element_counts
+      )
+
+    updated_state = %{
+      state
+      | current_element: {:initial, initial_element}
+    }
+
+    {:ok, StateStack.push_element(updated_state, "initial", initial_element)}
   end
 
   defp handle_data_start(attributes, location, state) do
