@@ -154,10 +154,12 @@ defmodule SC.Interpreter do
       %SC.State{type: :initial, transitions: [transition | _rest]} ->
         # Use the initial element's transition target
         find_child_by_id(child_states, transition.target)
+
       %SC.State{type: :initial, transitions: []} ->
         # Initial element exists but no transition yet (during parsing)
         # Use first non-initial child as fallback
         Enum.find(child_states, &(&1.type != :initial))
+
       nil ->
         # No initial element - use first non-initial child
         case child_states do

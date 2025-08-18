@@ -133,7 +133,7 @@ defmodule SC.Parser.SCXML.ElementBuilder do
 
   @doc """
   Build an initial state element from XML attributes and location info.
-  
+
   Initial states are represented as SC.State with type: :initial.
   They contain a single transition that specifies the target initial state.
   """

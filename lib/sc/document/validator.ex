@@ -246,7 +246,11 @@ defmodule SC.Document.Validator do
   end
 
   # Validate that compound states with initial attributes reference valid child states
-  defp validate_compound_state_initial(%__MODULE__{} = result, %SC.State{initial: nil} = state, _document) do
+  defp validate_compound_state_initial(
+         %__MODULE__{} = result,
+         %SC.State{initial: nil} = state,
+         _document
+       ) do
     # No initial attribute - check for initial element validation
     validate_initial_element(result, state)
   end
@@ -264,9 +268,12 @@ defmodule SC.Document.Validator do
   end
 
   # Validate that a state doesn't have both initial attribute and initial element
-  defp validate_no_conflicting_initial_specs(%__MODULE__{} = result, %SC.State{initial: initial_attr} = state) do
+  defp validate_no_conflicting_initial_specs(
+         %__MODULE__{} = result,
+         %SC.State{initial: initial_attr} = state
+       ) do
     has_initial_element = Enum.any?(state.states, &(&1.type == :initial))
-    
+
     if initial_attr && has_initial_element do
       add_error(
         result,
@@ -277,8 +284,12 @@ defmodule SC.Document.Validator do
     end
   end
 
-  # Validate the initial attribute reference  
-  defp validate_initial_attribute_reference(%__MODULE__{} = result, %SC.State{} = state, initial_id) do
+  # Validate the initial attribute reference
+  defp validate_initial_attribute_reference(
+         %__MODULE__{} = result,
+         %SC.State{} = state,
+         initial_id
+       ) do
     # Check if the initial state is a direct child of this compound state
     if Enum.any?(state.states, &(&1.id == initial_id)) do
       result
@@ -293,10 +304,13 @@ defmodule SC.Document.Validator do
   # Validate initial element constraints
   defp validate_initial_element(%__MODULE__{} = result, %SC.State{} = state) do
     case Enum.filter(state.states, &(&1.type == :initial)) do
-      [] -> 
-        result  # No initial element - that's fine
+      [] ->
+        # No initial element - that's fine
+        result
+
       [initial_element] ->
         validate_single_initial_element(result, state, initial_element)
+
       multiple_initial_elements ->
         add_error(
           result,
@@ -306,36 +320,48 @@ defmodule SC.Document.Validator do
   end
 
   # Validate a single initial element
-  defp validate_single_initial_element(%__MODULE__{} = result, %SC.State{} = parent_state, %SC.State{type: :initial} = initial_element) do
+  defp validate_single_initial_element(
+         %__MODULE__{} = result,
+         %SC.State{} = parent_state,
+         %SC.State{type: :initial} = initial_element
+       ) do
     case initial_element.transitions do
       [] ->
         add_error(
           result,
           "Initial element in state '#{parent_state.id}' must contain exactly one transition"
         )
+
       [transition] ->
         validate_initial_transition(result, parent_state, transition)
+
       multiple_transitions ->
         add_error(
-          result, 
+          result,
           "Initial element in state '#{parent_state.id}' must contain exactly one transition - found #{length(multiple_transitions)}"
         )
     end
   end
 
   # Validate the transition within an initial element
-  defp validate_initial_transition(%__MODULE__{} = result, %SC.State{} = parent_state, %SC.Transition{} = transition) do
+  defp validate_initial_transition(
+         %__MODULE__{} = result,
+         %SC.State{} = parent_state,
+         %SC.Transition{} = transition
+       ) do
     cond do
       is_nil(transition.target) ->
         add_error(
           result,
           "Initial element transition in state '#{parent_state.id}' must have a target"
         )
+
       not Enum.any?(parent_state.states, &(&1.id == transition.target && &1.type != :initial)) ->
         add_error(
           result,
           "Initial element transition in state '#{parent_state.id}' targets '#{transition.target}' which is not a valid direct child"
         )
+
       true ->
         result
     end

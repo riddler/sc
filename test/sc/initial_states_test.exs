@@ -17,12 +17,12 @@ defmodule SC.InitialStatesTest do
       """
 
       {:ok, document} = Parser.SCXML.parse(xml)
-      
+
       # Check document structure and find the compound state
       assert length(document.states) > 0
       compound_state = hd(document.states)
       assert compound_state.id == "compound"
-      
+
       # Find the initial element
       initial_element = Enum.find(compound_state.states, &(&1.type == :initial))
       assert initial_element != nil
@@ -47,16 +47,16 @@ defmodule SC.InitialStatesTest do
       """
 
       {:ok, document} = Parser.SCXML.parse(xml)
-      
-      # Check document structure and find the parallel state  
+
+      # Check document structure and find the parallel state
       assert length(document.states) > 0
       parallel_state = hd(document.states)
       assert parallel_state.id == "p"
-      
+
       # Find branch1
       branch1 = Enum.find(parallel_state.states, &(&1.id == "branch1"))
       assert branch1 != nil
-      
+
       # Find the initial element in branch1
       initial_element = Enum.find(branch1.states, &(&1.type == :initial))
       assert initial_element != nil
@@ -139,7 +139,7 @@ defmodule SC.InitialStatesTest do
 
       {:ok, document} = Parser.SCXML.parse(xml)
       {:error, errors, _warnings} = Document.Validator.validate(document)
-      
+
       assert length(errors) == 1
       assert hd(errors) =~ "cannot have both initial attribute and initial element"
     end
@@ -159,7 +159,7 @@ defmodule SC.InitialStatesTest do
 
       document = %Document{states: [compound_state]}
       {:error, errors, _warnings} = Document.Validator.validate(document)
-      
+
       assert length(errors) >= 1
       assert Enum.any?(errors, &String.contains?(&1, "must contain exactly one transition"))
     end
@@ -167,7 +167,7 @@ defmodule SC.InitialStatesTest do
     test "rejects initial element transition with invalid target" do
       # Construct document with invalid target
       compound_state = %State{
-        id: "compound", 
+        id: "compound",
         type: :compound,
         states: [
           %State{
@@ -181,7 +181,7 @@ defmodule SC.InitialStatesTest do
 
       document = %Document{states: [compound_state]}
       {:error, errors, _warnings} = Document.Validator.validate(document)
-      
+
       assert length(errors) >= 1
       assert Enum.any?(errors, &String.contains?(&1, "not a valid direct child"))
     end
@@ -189,7 +189,7 @@ defmodule SC.InitialStatesTest do
     test "rejects multiple initial elements in same state" do
       compound_state = %State{
         id: "compound",
-        type: :compound, 
+        type: :compound,
         states: [
           %State{id: "__initial_1__", type: :initial, transitions: []},
           %State{id: "__initial_2__", type: :initial, transitions: []},
@@ -199,7 +199,7 @@ defmodule SC.InitialStatesTest do
 
       document = %Document{states: [compound_state]}
       {:error, errors, _warnings} = Document.Validator.validate(document)
-      
+
       assert length(errors) >= 1
       assert Enum.any?(errors, &String.contains?(&1, "cannot have multiple initial elements"))
     end
@@ -221,7 +221,7 @@ defmodule SC.InitialStatesTest do
 
       {:ok, document} = Parser.SCXML.parse(xml)
       {:ok, state_chart} = SC.Interpreter.initialize(document)
-      
+
       active_states = SC.Interpreter.active_states(state_chart) |> MapSet.to_list()
       # Should enter child2 as specified by initial element, not child1 (first child)
       assert active_states == ["child2"]
@@ -241,7 +241,7 @@ defmodule SC.InitialStatesTest do
 
       {:ok, document} = Parser.SCXML.parse(xml)
       {:ok, state_chart} = SC.Interpreter.initialize(document)
-      
+
       active_states = SC.Interpreter.active_states(state_chart) |> MapSet.to_list()
       # Should enter first non-initial child
       assert active_states == ["child1"]
