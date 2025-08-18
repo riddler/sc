@@ -302,6 +302,12 @@ defmodule SC.Document.Validator do
     %{state | states: updated_children}
   end
 
+  defp update_state_types(%SC.State{type: :final} = state) do
+    # Final states keep their type, just update children (though final states shouldn't have children)
+    updated_children = Enum.map(state.states, &update_state_types/1)
+    %{state | states: updated_children}
+  end
+
   defp update_state_types(%SC.State{} = state) do
     # Update children first (bottom-up)
     updated_children = Enum.map(state.states, &update_state_types/1)

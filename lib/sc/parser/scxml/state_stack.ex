@@ -55,6 +55,19 @@ defmodule SC.Parser.SCXML.StateStack do
         updated_parent = %{parent_state | states: parent_state.states ++ [state_with_hierarchy]}
         {:ok, %{state | stack: [{"parallel", updated_parent} | rest]}}
 
+      [{"final", parent_state} | rest] ->
+        # State is nested in a final state - calculate depth from stack level
+        current_depth = calculate_stack_depth(rest) + 1
+
+        state_with_hierarchy = %{
+          state_element
+          | parent: parent_state.id,
+            depth: current_depth
+        }
+
+        updated_parent = %{parent_state | states: parent_state.states ++ [state_with_hierarchy]}
+        {:ok, %{state | stack: [{"final", updated_parent} | rest]}}
+
       _other_parent ->
         {:ok, %{state | stack: parent_stack}}
     end
@@ -90,6 +103,17 @@ defmodule SC.Parser.SCXML.StateStack do
         }
 
         {:ok, %{state | stack: [{"parallel", updated_parent} | rest]}}
+
+      [{"final", parent_state} | rest] ->
+        # Set the source state ID for final states too
+        transition_with_source = %{transition | source: parent_state.id}
+
+        updated_parent = %{
+          parent_state
+          | transitions: parent_state.transitions ++ [transition_with_source]
+        }
+
+        {:ok, %{state | stack: [{"final", updated_parent} | rest]}}
 
       _other_parent ->
         {:ok, %{state | stack: parent_stack}}
