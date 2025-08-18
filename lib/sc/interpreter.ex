@@ -93,7 +93,7 @@ defmodule SC.Interpreter do
          %Document{initial: nil, states: [first_state | _rest]} = document
        ) do
     # No initial specified - use first state and enter it properly
-    initial_states = enter_compound_state(first_state, document)
+    initial_states = enter_state(first_state, document)
     Configuration.new(initial_states)
   end
 
@@ -104,27 +104,36 @@ defmodule SC.Interpreter do
         %Configuration{}
 
       state ->
-        initial_states = enter_compound_state(state, document)
+        initial_states = enter_state(state, document)
         Configuration.new(initial_states)
     end
   end
 
-  # Enter a compound state by recursively entering its initial child states.
+  # Enter a state by recursively entering its initial child states based on type.
   # Returns a list of leaf state IDs that should be active.
-  defp enter_compound_state(%SC.State{states: []} = state, _document) do
+  defp enter_state(%SC.State{type: :atomic} = state, _document) do
     # Atomic state - return its ID
     [state.id]
   end
 
-  defp enter_compound_state(%SC.State{states: child_states, initial: initial_id}, document) do
+  defp enter_state(
+         %SC.State{type: :compound, states: child_states, initial: initial_id},
+         document
+       ) do
     # Compound state - find and enter initial child (don't add compound state to active set)
     initial_child = get_initial_child_state(initial_id, child_states)
 
     case initial_child do
       # No valid child - compound state with no children is not active
       nil -> []
-      child -> enter_compound_state(child, document)
+      child -> enter_state(child, document)
     end
+  end
+
+  defp enter_state(%SC.State{type: :parallel, states: child_states}, document) do
+    # Parallel state - enter ALL children simultaneously
+    child_states
+    |> Enum.flat_map(&enter_state(&1, document))
   end
 
   # Get the initial child state for a compound state
@@ -178,7 +187,7 @@ defmodule SC.Interpreter do
           target_state ->
             # For now: replace all active states with target and its children
             # Future: Implement proper SCXML exit/entry sequence with LCA computation
-            target_leaf_states = enter_compound_state(target_state, document)
+            target_leaf_states = enter_state(target_state, document)
             Configuration.new(target_leaf_states)
         end
     end

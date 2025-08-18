@@ -63,6 +63,8 @@ defmodule SC.Parser.SCXML.ElementBuilder do
     %SC.State{
       id: get_attr_value(attrs_map, "id"),
       initial: get_attr_value(attrs_map, "initial"),
+      # Will be updated later based on children and structure
+      type: :atomic,
       states: [],
       transitions: [],
       document_order: document_order,
