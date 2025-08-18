@@ -82,6 +82,7 @@ defmodule Mix.Tasks.Test.Baseline do
       "8/8 passing"
 
   """
+  @spec extract_test_summary(String.t()) :: String.t()
   def extract_test_summary(output) do
     # Look for the final summary line like "290 tests, 97 failures, 163 excluded"
     case Regex.run(~r/(\d+)\s+tests?,\s+(\d+)\s+failures?,\s+(\d+)\s+excluded/, output) do

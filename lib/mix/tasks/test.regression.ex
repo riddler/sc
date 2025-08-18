@@ -100,6 +100,7 @@ defmodule Mix.Tasks.Test.Regression do
       {:ok, %{"internal_tests" => [...], "scion_tests" => [...], "w3c_tests" => [...]}}
 
   """
+  @spec load_passing_tests(String.t()) :: {:ok, map()} | {:error, String.t()}
   def load_passing_tests(path \\ "test/passing_tests.json") do
     case File.read(path) do
       {:ok, content} ->
@@ -134,6 +135,7 @@ defmodule Mix.Tasks.Test.Regression do
       ["test/sc/parser/scxml_test.exs", "test/sc/document_test.exs", ...]
 
   """
+  @spec expand_test_patterns([String.t()]) :: [String.t()]
   def expand_test_patterns(test_patterns) when is_list(test_patterns) do
     test_patterns
     |> Enum.flat_map(&expand_single_pattern/1)

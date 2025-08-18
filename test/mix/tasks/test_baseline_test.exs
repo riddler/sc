@@ -138,7 +138,7 @@ defmodule Mix.Tasks.Test.BaselineTest do
       result = Baseline.extract_test_summary(output)
 
       # Should match the last/actual summary line
-      # 50 total - 20 excluded = 30 tests run  
+      # 50 total - 20 excluded = 30 tests run
       # 30 tests run - 10 failures = 20 passing
       assert result == "20/30 passing"
     end
