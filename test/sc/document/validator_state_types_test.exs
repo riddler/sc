@@ -14,7 +14,7 @@ defmodule SC.Document.ValidatorStateTypesTest do
 
       {:ok, document} = SCXML.parse(xml)
       {:ok, optimized_document, _warnings} = Document.Validator.validate(document)
-      
+
       [state] = optimized_document.states
       assert state.type == :atomic
     end
@@ -31,10 +31,10 @@ defmodule SC.Document.ValidatorStateTypesTest do
 
       {:ok, document} = SCXML.parse(xml)
       {:ok, optimized_document, _warnings} = Document.Validator.validate(document)
-      
+
       [parent_state] = optimized_document.states
       assert parent_state.type == :compound
-      
+
       [child_state] = parent_state.states
       assert child_state.type == :atomic
     end
@@ -49,11 +49,13 @@ defmodule SC.Document.ValidatorStateTypesTest do
 
       {:ok, document} = SCXML.parse(xml)
       {:error, _errors, _warnings} = Document.Validator.validate(document)
-      
+
       # Invalid documents should not have state types determined or lookup maps built
       [state] = document.states
-      assert state.type == :atomic  # Still the default from parsing
-      assert document.state_lookup == %{}  # No lookup maps built
+      # Still the default from parsing
+      assert state.type == :atomic
+      # No lookup maps built
+      assert document.state_lookup == %{}
     end
 
     test "nested compound states have correct types" do
@@ -70,13 +72,13 @@ defmodule SC.Document.ValidatorStateTypesTest do
 
       {:ok, document} = SCXML.parse(xml)
       {:ok, optimized_document, _warnings} = Document.Validator.validate(document)
-      
+
       [level1] = optimized_document.states
       assert level1.type == :compound
-      
-      [level2] = level1.states  
+
+      [level2] = level1.states
       assert level2.type == :compound
-      
+
       [leaf] = level2.states
       assert leaf.type == :atomic
     end

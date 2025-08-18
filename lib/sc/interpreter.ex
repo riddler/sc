@@ -51,10 +51,10 @@ defmodule SC.Interpreter do
         # No matching transitions - return unchanged (silent handling)
         {:ok, state_chart}
 
-      [transition | _rest] ->
-        # Execute the first enabled transition
+      transitions ->
+        # Execute all enabled transitions (for parallel regions)
         new_config =
-          execute_transition(state_chart.configuration, transition, state_chart.document)
+          execute_transitions(state_chart.configuration, transitions, state_chart.document)
 
         {:ok, StateChart.update_configuration(state_chart, new_config)}
     end
@@ -145,8 +145,6 @@ defmodule SC.Interpreter do
 
   defp get_initial_child_state(_initial_id, []), do: nil
 
-  # Find a state by ID in the document (using the more efficient implementation below)
-
   defp find_enabled_transitions(%StateChart{} = state_chart, %Event{} = event) do
     # Get all currently active leaf states
     active_leaf_states = Configuration.active_states(state_chart.configuration)
@@ -164,35 +162,52 @@ defmodule SC.Interpreter do
     |> Enum.sort_by(& &1.document_order)
   end
 
-  defp execute_transition(
+  # Execute transitions with proper SCXML semantics
+  defp execute_transitions(
          %Configuration{} = config,
-         %SC.Transition{} = transition,
+         transitions,
          %Document{} = document
        ) do
-    case transition.target do
-      # No target - stay in same state
-      nil ->
-        config
+    # Group transitions by source state to handle document order correctly
+    transitions_by_source = Enum.group_by(transitions, & &1.source)
 
-      target_id ->
-        # Proper compound state transition:
-        # 1. Find target state in document using O(1) lookup
-        # 2. If compound, enter its initial children
-        # 3. Return new configuration with leaf states only
-        case Document.find_state(document, target_id) do
-          nil ->
-            # Invalid target - stay in current state
-            config
-
-          target_state ->
-            # For now: replace all active states with target and its children
-            # Future: Implement proper SCXML exit/entry sequence with LCA computation
-            target_leaf_states = enter_state(target_state, document)
-            Configuration.new(target_leaf_states)
+    # For each source state, take only the first transition (document order)
+    # This handles both regular states and parallel regions correctly
+    selected_transitions =
+      transitions_by_source
+      |> Enum.flat_map(fn {_source_id, source_transitions} ->
+        # Take first transition in document order (transitions are already sorted)
+        case source_transitions do
+          [] -> []
+          # Only first transition per source state
+          [first | _rest] -> [first]
         end
+      end)
+
+    # Execute the selected transitions
+    target_leaf_states =
+      selected_transitions
+      |> Enum.flat_map(&execute_single_transition(&1, document))
+
+    case target_leaf_states do
+      # No valid transitions
+      [] -> config
+      states -> Configuration.new(states)
     end
   end
 
-  # These functions are no longer needed - we use Document.find_state/2
-  # and Document.get_transitions_from_state/2 for O(1) lookups
+  # Execute a single transition and return target leaf states
+  defp execute_single_transition(transition, document) do
+    case transition.target do
+      # No target
+      nil ->
+        []
+
+      target_id ->
+        case Document.find_state(document, target_id) do
+          nil -> []
+          target_state -> enter_state(target_state, document)
+        end
+    end
+  end
 end

@@ -296,11 +296,17 @@ defmodule SC.Document.Validator do
 
   # Update state types based on structure after parsing is complete
   @spec update_state_types(SC.State.t()) :: SC.State.t()
+  defp update_state_types(%SC.State{type: :parallel} = state) do
+    # Parallel states keep their type, just update children
+    updated_children = Enum.map(state.states, &update_state_types/1)
+    %{state | states: updated_children}
+  end
+
   defp update_state_types(%SC.State{} = state) do
     # Update children first (bottom-up)
     updated_children = Enum.map(state.states, &update_state_types/1)
 
-    # Determine this state's type based on structure
+    # Determine this state's type based on structure (atomic vs compound)
     state_type = determine_state_type(updated_children, state.initial)
 
     %{state | type: state_type, states: updated_children}
