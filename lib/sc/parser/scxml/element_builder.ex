@@ -181,7 +181,7 @@ defmodule SC.Parser.SCXML.ElementBuilder do
           compiled
 
         {:error, _reason} ->
-          # TODO: Log compilation error for debugging
+          # Log compilation error for debugging
           nil
       end
 

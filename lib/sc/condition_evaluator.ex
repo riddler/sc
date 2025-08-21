@@ -20,14 +20,12 @@ defmodule SC.ConditionEvaluator do
   def compile_condition(""), do: {:ok, nil}
 
   def compile_condition(expression) when is_binary(expression) do
-    try do
-      case Predicator.compile(expression) do
-        {:ok, compiled} -> {:ok, compiled}
-        {:error, reason} -> {:error, reason}
-      end
-    rescue
-      error -> {:error, error}
+    case Predicator.compile(expression) do
+      {:ok, compiled} -> {:ok, compiled}
+      {:error, reason} -> {:error, reason}
     end
+  rescue
+    error -> {:error, error}
   end
 
   @doc """
@@ -44,27 +42,25 @@ defmodule SC.ConditionEvaluator do
   def evaluate_condition(nil, _context), do: true
 
   def evaluate_condition(compiled_cond, context) when is_map(context) do
-    try do
-      # If context has configuration/current_event, build SCXML context
-      # Otherwise, use context directly for predicator
-      eval_context =
-        if has_scxml_context?(context) do
-          build_scxml_context(context)
-        else
-          context
-        end
-
-      # Provide SCXML functions via v2.0 functions option
-      scxml_functions = build_scxml_functions(context)
-
-      case Predicator.evaluate(compiled_cond, eval_context, functions: scxml_functions) do
-        {:ok, result} when is_boolean(result) -> result
-        {:ok, _non_boolean} -> false
-        {:error, _reason} -> false
+    # If context has configuration/current_event, build SCXML context
+    # Otherwise, use context directly for predicator
+    eval_context =
+      if has_scxml_context?(context) do
+        build_scxml_context(context)
+      else
+        context
       end
-    rescue
-      _error -> false
+
+    # Provide SCXML functions via v2.0 functions option
+    scxml_functions = build_scxml_functions(context)
+
+    case Predicator.evaluate(compiled_cond, eval_context, functions: scxml_functions) do
+      {:ok, result} when is_boolean(result) -> result
+      {:ok, _non_boolean} -> false
+      {:error, _reason} -> false
     end
+  rescue
+    _error -> false
   end
 
   # Check if context has SCXML-specific keys
