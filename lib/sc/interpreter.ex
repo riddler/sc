@@ -429,9 +429,9 @@ defmodule SC.Interpreter do
 
     # Check various exit conditions
     should_exit_source_state?(active_state, source_state, lcca) ||
-    should_exit_source_descendant?(active_state, source_state, document) ||
-    should_exit_parallel_sibling?(active_state, source_state, target_state, document) ||
-    should_exit_lcca_descendant?(active_state, target_state, lcca, document)
+      should_exit_source_descendant?(active_state, source_state, document) ||
+      should_exit_parallel_sibling?(active_state, source_state, target_state, document) ||
+      should_exit_lcca_descendant?(active_state, target_state, lcca, document)
   end
 
   # Check if we should exit the source state itself
@@ -447,15 +447,15 @@ defmodule SC.Interpreter do
   # Check if we should exit parallel siblings
   defp should_exit_parallel_sibling?(active_state, source_state, target_state, document) do
     exits_parallel_region?(source_state, target_state, document) &&
-    are_parallel_siblings?(document, active_state, source_state)
+      are_parallel_siblings?(document, active_state, source_state)
   end
 
   # Check if we should exit LCCA descendants (but not target ancestors/descendants)
   defp should_exit_lcca_descendant?(active_state, target_state, lcca, document) do
     lcca && descendant_of?(document, active_state, lcca) &&
-    active_state != lcca &&
-    not descendant_of?(document, target_state, active_state) &&
-    not descendant_of?(document, active_state, target_state)
+      active_state != lcca &&
+      not descendant_of?(document, target_state, active_state) &&
+      not descendant_of?(document, active_state, target_state)
   end
 
   # Compute the Least Common Compound Ancestor (LCCA) of source and target states
@@ -494,13 +494,20 @@ defmodule SC.Interpreter do
     # Find the first state in target path that also appears in source path
     # This gives us the deepest common ancestor
     target_path
-    |> Enum.reverse()  # Start from deepest and work up
+    # Start from deepest and work up
+    |> Enum.reverse()
     |> Enum.find(fn state_id -> MapSet.member?(source_set, state_id) end)
     |> case do
-      nil -> nil  # No common ancestor (shouldn't happen in valid SCXML)
+      # No common ancestor (shouldn't happen in valid SCXML)
+      nil ->
+        nil
+
       lcca_id ->
         case Document.find_state(document, lcca_id) do
-          %{type: :compound} -> lcca_id  # Must be compound to be LCCA
+          # Must be compound to be LCCA
+          %{type: :compound} ->
+            lcca_id
+
           _non_compound_state ->
             # Find the nearest compound ancestor
             find_nearest_compound_ancestor(lcca_id, document)
@@ -513,7 +520,8 @@ defmodule SC.Interpreter do
     case Document.find_state(document, state_id) do
       nil -> nil
       %{type: :compound} -> state_id
-      %{parent: nil} -> nil  # Root state, no compound ancestor
+      # Root state, no compound ancestor
+      %{parent: nil} -> nil
       %{parent: parent_id} -> find_nearest_compound_ancestor(parent_id, document)
     end
   end

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 #### Eventless/Automatic Transitions
+
 - **Eventless Transitions**: Full W3C SCXML support for transitions without event attributes that fire automatically
 - **Automatic Transition Processing**: Microstep loop processes chains of eventless transitions until stable configuration
 - **Cycle Detection**: Prevents infinite loops with configurable iteration limits (100 iterations default)
@@ -17,18 +18,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Conflict Resolution**: Child state transitions take priority over ancestor transitions per W3C specification
 
 #### Enhanced Parallel State Support
+
 - **Parallel State Transitions**: Fixed regression where transitions within parallel regions affected unrelated parallel regions
 - **Cross-Parallel Boundaries**: Proper exit semantics when transitions cross parallel region boundaries
 - **SCXML Exit State Calculation**: Implements correct W3C exit set computation for complex state hierarchies
 - **Sibling State Management**: Automatic exit of parallel siblings when transitions leave their shared parent
 
 ### Fixed
+
 - **Regression Test**: Fixed parallel state test failure (`test/scion_tests/more_parallel/test1_test.exs`)
 - **SCION Test Suite**: All 4 `cond_js` tests now pass (previously 3/4)
 - **Parallel Interrupt Tests**: Fixed 6 parallel interrupt test failures in regression suite
 - **Code Quality**: Resolved all `mix credo --strict` issues (predicate naming, unused variables, aliases)
 
 ### Technical Improvements
+
 - **SCXML Terminology Alignment**: Updated codebase to use proper SCXML specification terminology
   - **Microstep/Macrostep Processing**: Execute microsteps (single transition sets) until stable macrostep completion
   - **Exit Set Computation**: Implements W3C SCXML exit set calculation algorithm for proper state exit semantics
