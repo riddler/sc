@@ -101,7 +101,8 @@ defmodule SC.Interpreter do
   end
 
   # Recursive helper with cycle detection (max 100 iterations)
-  defp process_eventless_transitions(%StateChart{} = state_chart, iterations) when iterations >= 100 do
+  defp process_eventless_transitions(%StateChart{} = state_chart, iterations)
+       when iterations >= 100 do
     # Prevent infinite loops - return current state
     state_chart
   end
@@ -271,11 +272,14 @@ defmodule SC.Interpreter do
   end
 
   # Check if transition matches the event (or lack thereof for eventless)
-  defp matches_event_or_eventless?(%{event: nil}, nil), do: true  # Eventless transition
+  # Eventless transition
+  defp matches_event_or_eventless?(%{event: nil}, nil), do: true
+
   defp matches_event_or_eventless?(%{event: transition_event}, %Event{} = event) do
     Event.matches?(event, transition_event)
   end
-  defp matches_event_or_eventless?(_, _), do: false
+
+  defp matches_event_or_eventless?(_transition, _event), do: false
 
   # Resolve transition conflicts according to SCXML semantics:
   # Child state transitions take priority over ancestor state transitions
@@ -291,8 +295,8 @@ defmodule SC.Interpreter do
       descendants_with_transitions =
         source_states
         |> Enum.filter(fn other_source ->
-          other_source != source_state and 
-          is_descendant_of?(document, other_source, source_state)
+          other_source != source_state and
+            descendant_of?(document, other_source, source_state)
         end)
 
       # Keep this source state's transitions only if no descendants have transitions
@@ -304,21 +308,23 @@ defmodule SC.Interpreter do
   end
 
   # Check if state_id is a descendant of ancestor_id in the state hierarchy
-  defp is_descendant_of?(document, state_id, ancestor_id) do
+  defp descendant_of?(document, state_id, ancestor_id) do
     case Document.find_state(document, state_id) do
       nil -> false
-      state -> is_ancestor_in_parent_chain?(state, ancestor_id, document)
+      state -> ancestor_in_parent_chain?(state, ancestor_id, document)
     end
   end
 
   # Recursively check if ancestor_id appears in the parent chain, walking up the hierarchy
-  defp is_ancestor_in_parent_chain?(%{parent: nil}, _ancestor_id, _document), do: false
-  defp is_ancestor_in_parent_chain?(%{parent: ancestor_id}, ancestor_id, _document), do: true
-  defp is_ancestor_in_parent_chain?(%{parent: parent_id}, ancestor_id, document) when is_binary(parent_id) do
+  defp ancestor_in_parent_chain?(%{parent: nil}, _ancestor_id, _document), do: false
+  defp ancestor_in_parent_chain?(%{parent: ancestor_id}, ancestor_id, _document), do: true
+
+  defp ancestor_in_parent_chain?(%{parent: parent_id}, ancestor_id, document)
+       when is_binary(parent_id) do
     # Look up parent state and continue walking up the chain
     case Document.find_state(document, parent_id) do
       nil -> false
-      parent_state -> is_ancestor_in_parent_chain?(parent_state, ancestor_id, document)
+      parent_state -> ancestor_in_parent_chain?(parent_state, ancestor_id, document)
     end
   end
 
@@ -354,8 +360,109 @@ defmodule SC.Interpreter do
 
     case target_leaf_states do
       # No valid transitions
-      [] -> config
-      states -> Configuration.new(states)
+      [] ->
+        config
+
+      states ->
+        update_configuration_with_parallel_preservation(
+          config,
+          selected_transitions,
+          states,
+          document
+        )
+    end
+  end
+
+  # Update configuration while preserving unaffected parallel regions
+  defp update_configuration_with_parallel_preservation(
+         config,
+         transitions,
+         new_target_states,
+         document
+       ) do
+    # Get the current active leaf states
+    current_active = Configuration.active_states(config)
+
+    # Find all states that should be exited by these specific transitions
+    states_to_exit = find_exit_states(transitions, current_active, document)
+
+    # Keep active states that are not being exited
+    preserved_states = MapSet.difference(current_active, states_to_exit)
+
+    # Combine preserved states with new target states
+    final_active_states = MapSet.union(preserved_states, MapSet.new(new_target_states))
+
+    Configuration.new(MapSet.to_list(final_active_states))
+  end
+
+  # Find all states that should be exited when specific transitions fire
+  defp find_exit_states(transitions, current_active, document) do
+    current_active
+    |> Enum.filter(fn active_state ->
+      # Exit this active state if any transition requires it
+      Enum.any?(transitions, fn transition ->
+        should_exit_state_for_transition?(active_state, transition, document)
+      end)
+    end)
+    |> MapSet.new()
+  end
+
+  # Determine if a specific active state should be exited for a specific transition
+  defp should_exit_state_for_transition?(active_state, transition, document) do
+    source_state = transition.source
+    target_state = transition.target
+
+    cond do
+      # Always exit the source state itself
+      active_state == source_state ->
+        true
+
+      # Exit descendants of the source state
+      descendant_of?(document, active_state, source_state) ->
+        true
+
+      # If transitioning out of a parallel region, exit sibling states in that region
+      target_state && exits_parallel_region?(source_state, target_state, document) ->
+        are_parallel_siblings?(document, active_state, source_state)
+
+      # Otherwise, don't exit this state
+      true ->
+        false
+    end
+  end
+
+  # Check if a transition exits a parallel region (target is outside the parallel region)
+  defp exits_parallel_region?(source_state, target_state, document) do
+    case {Document.find_state(document, source_state),
+          Document.find_state(document, target_state)} do
+      {%{parent: source_parent}, _target} when not is_nil(source_parent) ->
+        case Document.find_state(document, source_parent) do
+          %{type: :parallel} ->
+            # Source is in a parallel region - check if target is outside this region
+            not descendant_of?(document, target_state, source_parent) and
+              target_state != source_parent
+
+          _non_parallel_parent ->
+            false
+        end
+
+      _other_case ->
+        false
+    end
+  end
+
+  # Check if two states are siblings within the same parallel region
+  defp are_parallel_siblings?(document, state1_id, state2_id) do
+    case {Document.find_state(document, state1_id), Document.find_state(document, state2_id)} do
+      {%{parent: parent_id}, %{parent: parent_id}} when not is_nil(parent_id) ->
+        # Same parent - check if parent is parallel
+        case Document.find_state(document, parent_id) do
+          %{type: :parallel} -> true
+          _non_parallel_parent -> false
+        end
+
+      _different_parents ->
+        false
     end
   end
 

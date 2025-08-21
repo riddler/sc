@@ -1,5 +1,9 @@
 defmodule SC.Interpreter.EventlessTransitionsTest do
   use SC.Case
+
+  alias SC.Interpreter
+  alias SC.Parser.SCXML
+
   @moduletag :unit
 
   describe "eventless transitions" do
@@ -84,7 +88,8 @@ defmodule SC.Interpreter.EventlessTransitionsTest do
       """
 
       test_scxml(xml, "", ["a"], [
-        {%{"name" => "go"}, ["c"]}  # Event triggers a->b, then automatic b->c
+        # Event triggers a->b, then automatic b->c
+        {%{"name" => "go"}, ["c"]}
       ])
     end
 
@@ -141,11 +146,11 @@ defmodule SC.Interpreter.EventlessTransitionsTest do
 
       # Should not crash due to infinite loop - cycle detection should prevent this
       # Final state depends on implementation but should not hang
-      {:ok, document} = SC.Parser.SCXML.parse(xml)
-      {:ok, state_chart} = SC.Interpreter.initialize(document)
-      
+      {:ok, document} = SCXML.parse(xml)
+      {:ok, state_chart} = Interpreter.initialize(document)
+
       # Just ensure we don't crash and have some stable state
-      assert SC.Interpreter.active_states(state_chart) |> MapSet.size() > 0
+      assert Interpreter.active_states(state_chart) |> MapSet.size() > 0
     end
   end
 end

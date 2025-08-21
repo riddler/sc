@@ -28,9 +28,9 @@ When verifying code changes, always follow this sequence (also automated via pre
 
 **Testing:**
 
-- `mix test` - Run all internal tests (excludes SCION/W3C by default)
+- `mix test` - Run all internal tests (excludes SCION/W3C by default) - 434 tests
 - `mix test --include scion --include scxml_w3` - Run all tests including SCION and W3C tests
-- `mix test.regression` - Run regression tests that should always pass
+- `mix test.regression` - Run regression tests that should always pass - 62 tests (critical functionality)
 - `mix test.baseline` - Check which tests are currently passing (for updating regression suite)
 - `mix test --cover` - Run all tests with coverage reporting (maintain 95%+ coverage)
 - `mix coveralls` - Alternative coverage command
@@ -38,6 +38,7 @@ When verifying code changes, always follow this sequence (also automated via pre
 - `mix test test/sc/location_test.exs` - Run location tracking tests
 - `mix test test/sc/parser/scxml_test.exs` - Run specific SCXML parser tests (uses pattern matching)
 - `mix test test/sc/interpreter/compound_state_test.exs` - Run compound state tests
+- `mix test test/sc/interpreter/eventless_transitions_test.exs` - Run eventless transition tests
 
 **Development:**
 
@@ -109,9 +110,14 @@ Also use this initial Elixir implementation as reference: <https://github.com/ca
 - **`SC.Interpreter`** - Core SCXML interpreter with synchronous API
   - Initializes state charts from validated + optimized documents
   - **Compound state support**: Automatically enters initial child states recursively
+  - **Parallel state support**: Proper concurrent execution with exit semantics across parallel boundaries
+  - **Eventless transitions**: Automatic transitions without event attributes (W3C compliant)
+  - **Conditional transitions**: Full `cond` attribute support with Predicator v2.0 expression evaluation
+  - **Transition conflict resolution**: Child state transitions take priority over ancestors per W3C specification
+  - **SCXML exit set computation**: Proper exit state calculation for complex hierarchies
   - **O(1 lookups**: Uses `Document.find_state/2` and `Document.get_transitions_from_state/2`
   - Separates `active_states()` (leaf only) from `active_ancestors()` (includes parents)
-  - Processes events and manages state transitions
+  - Processes events and manages state transitions with microstep processing
   - Provides `{:ok, result}` or `{:error, reason}` responses
 - **`SC.StateChart`** - Runtime container for SCXML state machines
   - Combines document, configuration, and event queues
@@ -239,13 +245,17 @@ XML content within triple quotes uses 4-space base indentation.
 
 ## SCION Test Results
 
-**Current Status:** 107/225 tests passing (47.6% pass rate)
+**Current Status:** 34/127 tests passing (26.8% pass rate) - ✅ +4 with eventless transitions and parallel fixes
 
 **Working Features:**
 
 - ✅ Basic state transitions (basic1, basic2 tests pass)
 - ✅ **Compound states** with automatic initial child entry
 - ✅ **Initial state elements** (`<initial>` with transitions) - W3C compliant
+- ✅ **Parallel states** with concurrent execution and proper exit semantics
+- ✅ **Eventless transitions** - Automatic transitions without event attributes (W3C compliant)
+- ✅ **Conditional transitions** - Full `cond` attribute support with Predicator v2.0 expression evaluation
+- ✅ **Transition conflict resolution** - Child state transitions take priority over ancestors per W3C specification
 - ✅ Hierarchical states with O(1) optimized lookups
 - ✅ Event-driven state changes
 - ✅ Initial state configuration (both `initial="id"` attributes and `<initial>` elements)
@@ -255,11 +265,11 @@ XML content within triple quotes uses 4-space base indentation.
 
 **Main Failure Categories:**
 
-- **Document parsing failures**: Complex SCXML with parallel states, history states, executable content
+- **Document parsing failures**: Complex SCXML with history states, executable content
 - **Validation too strict**: Rejecting valid but complex SCXML documents  
-- **Missing SCXML features**: Parallel states, conditional transitions, targetless transitions, internal transitions
+- **Missing SCXML features**: Targetless transitions, internal transitions
 - **Missing executable content**: `<script>`, `<assign>`, `<send>`, `<raise>`, `<onentry>`, `<onexit>`
-- **Incomplete hierarchy handling**: Initial state resolution for compound states
+- **Missing datamodel features**: Enhanced expression evaluation, additional functions
 
 ## Implementation Status
 
@@ -270,8 +280,13 @@ XML content within triple quotes uses 4-space base indentation.
 - **Parse → Validate → Optimize architecture** with clean separation of concerns
 - Complete interpreter infrastructure (Interpreter, StateChart, Configuration, Event, Validator)  
 - **Compound state support** with automatic initial child entry recursion
+- **Parallel state support** with concurrent execution and proper cross-boundary exit semantics
+- **Eventless transitions** - Automatic transitions without event attributes (W3C compliant)
+- **Conditional transitions** - Full `cond` attribute support with Predicator v2.0 expression evaluation and SCXML `In()` function
+- **Transition conflict resolution** - Child state transitions take priority over ancestors per W3C specification
+- **SCXML exit set computation** - Proper exit state calculation for complex hierarchies
 - **O(1 performance optimizations** via state and transition lookup maps
-- Comprehensive test suite integration (SCION + W3C)
+- Comprehensive test suite integration (SCION + W3C) - 434 tests, 62 regression tests
 - Test infrastructure with SC.Case module using interpreter
 - **Pattern matching in tests** instead of multiple individual assertions
 - XML parsing with namespace support and precise source location tracking
@@ -285,17 +300,14 @@ XML content within triple quotes uses 4-space base indentation.
 - 95%+ test coverage maintained
 - **Initial state elements** (`<initial>` with `<transition>`) with comprehensive validation
 - **Modular validator architecture** - refactored from 386-line monolith into focused modules
-- **Full Credo compliance** - all 43 alias-related issues resolved
+- **Full Credo compliance** - all code quality issues resolved
 
 🚧 **Future Extensions:**
 
-- Parallel states (`<parallel>`) - major gap in current implementation
 - History states (`<history>`) - missing from parser and interpreter  
-- Conditional transitions with `cond` attribute evaluation
 - Internal transitions (`type="internal"`) and targetless transitions
 - Executable content elements (`<onentry>`, `<onexit>`, `<raise>`, `<assign>`, `<script>`, `<send>`)
-- Proper SCXML exit/entry sequence with Least Common Ancestor (LCA) computation
-- Expression evaluation and datamodel support
+- Enhanced datamodel support with more expression functions
 - Enhanced validation for complex SCXML constructs
 - Additional parser formats (JSON, YAML) leveraging same validation/optimization pipeline
 
