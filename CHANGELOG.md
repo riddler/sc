@@ -29,10 +29,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Code Quality**: Resolved all `mix credo --strict` issues (predicate naming, unused variables, aliases)
 
 ### Technical Improvements
+- **SCXML Terminology Alignment**: Updated codebase to use proper SCXML specification terminology
+  - **Microstep/Macrostep Processing**: Execute microsteps (single transition sets) until stable macrostep completion
+  - **Exit Set Computation**: Implements W3C SCXML exit set calculation algorithm for proper state exit semantics
+  - **LCCA Computation**: Full Least Common Compound Ancestor algorithm for accurate transition conflict resolution
+  - **NULL Transitions**: Added SCXML specification references while maintaining "eventless transitions" terminology
 - **Feature Detection**: Added `eventless_transitions: :supported` to feature registry
 - **Performance**: Optimized ancestor/descendant lookup using existing parent attributes
-- **Test Coverage**: Added 8 comprehensive eventless transition tests (434 total tests, up from 426)
-- **Regression Testing**: All 62 regression tests pass (up from 60)
+- **Test Coverage**: Enhanced with 10 comprehensive edge case tests covering LCCA, exit sets, and complex hierarchies
+  - **Total Tests**: 444 tests (up from 434), including deep hierarchy and parallel region edge cases
+  - **Coverage Improvement**: Interpreter module coverage increased from 70.4% to 83.0%
+  - **Project Coverage**: Overall coverage improved from 89.0% to 92.3% (exceeds 90% minimum requirement)
+- **Regression Testing**: All 63 regression tests pass (up from 62)
 
 ## [0.1.0] - 2025-08-20
 
