@@ -52,7 +52,7 @@ defmodule SC.Interpreter.EventlessTransitionsTest do
       test_scxml(xml, "", ["a"], [])
     end
 
-    test "eventless transition chains process until stable" do
+    test "eventless transition chains execute as microsteps until stable" do
       xml = """
       <?xml version="1.0" encoding="UTF-8"?>
       <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
@@ -73,7 +73,7 @@ defmodule SC.Interpreter.EventlessTransitionsTest do
       test_scxml(xml, "", ["d"], [])
     end
 
-    test "eventless transitions work after regular events" do
+    test "eventless transitions work after regular events (complete macrostep)" do
       xml = """
       <?xml version="1.0" encoding="UTF-8"?>
       <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
