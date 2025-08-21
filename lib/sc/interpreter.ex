@@ -20,6 +20,9 @@ defmodule SC.Interpreter do
         state_chart =
           StateChart.new(optimized_document, get_initial_configuration(optimized_document))
 
+        # Process any eventless transitions after initialization
+        state_chart = process_eventless_transitions(state_chart)
+
         # Log warnings if any (TODO: Use proper logging)
         if warnings != [], do: :ok
         {:ok, state_chart}
@@ -56,7 +59,12 @@ defmodule SC.Interpreter do
         new_config =
           execute_transitions(state_chart.configuration, transitions, state_chart.document)
 
-        {:ok, StateChart.update_configuration(state_chart, new_config)}
+        state_chart = StateChart.update_configuration(state_chart, new_config)
+
+        # Process any eventless transitions after the event
+        state_chart = process_eventless_transitions(state_chart)
+
+        {:ok, state_chart}
     end
   end
 
@@ -86,6 +94,37 @@ defmodule SC.Interpreter do
   end
 
   # Private helper functions
+
+  # Process eventless transitions until stable configuration is reached
+  defp process_eventless_transitions(%StateChart{} = state_chart) do
+    process_eventless_transitions(state_chart, 0)
+  end
+
+  # Recursive helper with cycle detection (max 100 iterations)
+  defp process_eventless_transitions(%StateChart{} = state_chart, iterations) when iterations >= 100 do
+    # Prevent infinite loops - return current state
+    state_chart
+  end
+
+  defp process_eventless_transitions(%StateChart{} = state_chart, iterations) do
+    eventless_transitions = find_eventless_transitions(state_chart)
+
+    case eventless_transitions do
+      [] ->
+        # No more eventless transitions - stable configuration reached
+        state_chart
+
+      transitions ->
+        # Execute eventless transitions
+        new_config =
+          execute_transitions(state_chart.configuration, transitions, state_chart.document)
+
+        new_state_chart = StateChart.update_configuration(state_chart, new_config)
+
+        # Continue processing until stable (recursive call)
+        process_eventless_transitions(new_state_chart, iterations + 1)
+    end
+  end
 
   defp get_initial_configuration(%Document{initial: nil, states: []}), do: %Configuration{}
 
@@ -194,31 +233,93 @@ defmodule SC.Interpreter do
   end
 
   defp find_enabled_transitions(%StateChart{} = state_chart, %Event{} = event) do
-    # Get all currently active leaf states
-    active_leaf_states = Configuration.active_states(state_chart.configuration)
+    find_enabled_transitions_for_event(state_chart, event)
+  end
+
+  # Find eventless transitions (automatic transitions without event attribute)
+  defp find_eventless_transitions(%StateChart{} = state_chart) do
+    find_enabled_transitions_for_event(state_chart, nil)
+  end
+
+  # Unified transition finding logic for both named events and eventless transitions
+  defp find_enabled_transitions_for_event(%StateChart{} = state_chart, event_or_nil) do
+    # Get all currently active states (including ancestors)
+    active_states_with_ancestors = StateChart.active_states(state_chart)
 
     # Build evaluation context for conditions
     evaluation_context = %{
       configuration: state_chart.configuration,
-      current_event: event,
-      # Use event data as data model for now
-      data_model: event.data || %{}
+      current_event: event_or_nil,
+      # Use event data as data model for now, or empty map for eventless
+      data_model: if(event_or_nil, do: event_or_nil.data || %{}, else: %{})
     }
 
-    # Find transitions from these active states that match the event and condition
-    active_leaf_states
+    # Find transitions from all active states (including ancestors) that match the event/eventless and condition
+    active_states_with_ancestors
     |> Enum.flat_map(fn state_id ->
       # Use O(1) lookup for transitions from this state
       transitions = Document.get_transitions_from_state(state_chart.document, state_id)
 
       transitions
       |> Enum.filter(fn transition ->
-        Event.matches?(event, transition.event) and
+        matches_event_or_eventless?(transition, event_or_nil) and
           transition_condition_enabled?(transition, evaluation_context)
       end)
     end)
     # Process in document order
     |> Enum.sort_by(& &1.document_order)
+  end
+
+  # Check if transition matches the event (or lack thereof for eventless)
+  defp matches_event_or_eventless?(%{event: nil}, nil), do: true  # Eventless transition
+  defp matches_event_or_eventless?(%{event: transition_event}, %Event{} = event) do
+    Event.matches?(event, transition_event)
+  end
+  defp matches_event_or_eventless?(_, _), do: false
+
+  # Resolve transition conflicts according to SCXML semantics:
+  # Child state transitions take priority over ancestor state transitions
+  defp resolve_transition_conflicts(transitions, document) do
+    # Group transitions by their source states
+    transitions_by_source = Enum.group_by(transitions, & &1.source)
+    source_states = Map.keys(transitions_by_source)
+
+    # Filter out ancestor state transitions if descendant has enabled transitions
+    source_states
+    |> Enum.filter(fn source_state ->
+      # Check if any descendant of this source state also has enabled transitions
+      descendants_with_transitions =
+        source_states
+        |> Enum.filter(fn other_source ->
+          other_source != source_state and 
+          is_descendant_of?(document, other_source, source_state)
+        end)
+
+      # Keep this source state's transitions only if no descendants have transitions
+      descendants_with_transitions == []
+    end)
+    |> Enum.flat_map(fn source_state ->
+      Map.get(transitions_by_source, source_state, [])
+    end)
+  end
+
+  # Check if state_id is a descendant of ancestor_id in the state hierarchy
+  defp is_descendant_of?(document, state_id, ancestor_id) do
+    case Document.find_state(document, state_id) do
+      nil -> false
+      state -> is_ancestor_in_parent_chain?(state, ancestor_id, document)
+    end
+  end
+
+  # Recursively check if ancestor_id appears in the parent chain, walking up the hierarchy
+  defp is_ancestor_in_parent_chain?(%{parent: nil}, _ancestor_id, _document), do: false
+  defp is_ancestor_in_parent_chain?(%{parent: ancestor_id}, ancestor_id, _document), do: true
+  defp is_ancestor_in_parent_chain?(%{parent: parent_id}, ancestor_id, document) when is_binary(parent_id) do
+    # Look up parent state and continue walking up the chain
+    case Document.find_state(document, parent_id) do
+      nil -> false
+      parent_state -> is_ancestor_in_parent_chain?(parent_state, ancestor_id, document)
+    end
   end
 
   # Execute transitions with proper SCXML semantics
@@ -227,8 +328,11 @@ defmodule SC.Interpreter do
          transitions,
          %Document{} = document
        ) do
+    # Apply SCXML conflict resolution: child state transitions take priority over ancestors
+    conflict_resolved_transitions = resolve_transition_conflicts(transitions, document)
+
     # Group transitions by source state to handle document order correctly
-    transitions_by_source = Enum.group_by(transitions, & &1.source)
+    transitions_by_source = Enum.group_by(conflict_resolved_transitions, & &1.source)
 
     # For each source state, take only the first transition (document order)
     # This handles both regular states and parallel regions correctly
