@@ -5,11 +5,14 @@
     "test/sc/**/*_test.exs",
     "test/mix/**/*_test.exs"
   ],
-  "last_updated": "2025-08-18",
+  "last_updated": "2025-08-21",
   "scion_tests": [
     "test/scion_tests/basic/basic0_test.exs",
     "test/scion_tests/basic/basic1_test.exs",
     "test/scion_tests/basic/basic2_test.exs",
+    "test/scion_tests/cond_js/test0_test.exs",
+    "test/scion_tests/cond_js/test1_test.exs",
+    "test/scion_tests/cond_js/test2_test.exs",
     "test/scion_tests/default_initial_state/initial1_test.exs",
     "test/scion_tests/default_initial_state/initial2_test.exs",
     "test/scion_tests/documentOrder/documentOrder0_test.exs",

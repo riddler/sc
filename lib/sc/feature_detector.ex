@@ -53,8 +53,8 @@ defmodule SC.FeatureDetector do
       initial_attributes: :supported,
       initial_elements: :supported,
 
-      # Conditional features (unsupported)
-      conditional_transitions: :unsupported,
+      # Conditional features (supported)
+      conditional_transitions: :supported,
 
       # Data model features (unsupported)
       datamodel: :unsupported,
