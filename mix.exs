@@ -13,7 +13,7 @@ defmodule SC.MixProject do
     {:excoveralls, "~> 0.18", only: :test},
 
     # Runtime
-    {:predicator, "~> 1.1"},
+    {:predicator, "~> 2.0"},
     {:saxy, "~> 1.6"}
   ]
 

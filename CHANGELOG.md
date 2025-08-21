@@ -27,11 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Conditional Expressions
 - **`cond` Attribute**: Full support for conditional expressions on transitions
-- **Predicator Integration**: Secure expression evaluation using predicator library v1.1.0
+- **Predicator Integration**: Secure expression evaluation using predicator library v2.0.0
 - **SCXML `In()` Function**: W3C-compliant state checking predicate
 - **Logical Operations**: Support for AND, OR, NOT, and comparison operators
 - **Event Data Access**: Conditions can access current event name and payload
 - **Error Handling**: Invalid expressions gracefully handled per W3C specification
+- **Modern Functions API**: Uses Predicator v2.0's improved custom functions approach
 
 #### Performance Optimizations
 - **Parse-time Compilation**: Conditional expressions compiled once during parsing
@@ -62,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Dependencies
 - **saxy ~> 1.6**: Fast XML parser for SCXML document processing
-- **predicator ~> 1.1**: Secure conditional expression evaluation
+- **predicator ~> 2.0**: Secure conditional expression evaluation (upgraded to v2.0 with improved custom functions API)
 - **credo ~> 1.7**: Static code analysis (dev/test)
 - **dialyxir ~> 1.4**: Static type checking (dev/test)
 - **excoveralls ~> 0.18**: Test coverage analysis (test)
@@ -128,6 +129,7 @@ active_states = new_state_chart.configuration.active_states
 - Full W3C SCXML 1.0 specification compliance for supported features
 - Production-ready with comprehensive test coverage
 - Built for high-performance state machine processing in Elixir applications
+- Uses Predicator v2.0 with modern custom functions API (no global function registry)
 
 ---
 

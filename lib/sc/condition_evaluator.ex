@@ -54,10 +54,10 @@ defmodule SC.ConditionEvaluator do
           context
         end
 
-      # Register SCXML In() function before evaluation
-      register_scxml_functions(context)
+      # Provide SCXML functions via v2.0 functions option
+      scxml_functions = build_scxml_functions(context)
 
-      case Predicator.evaluate(compiled_cond, eval_context) do
+      case Predicator.evaluate(compiled_cond, eval_context, functions: scxml_functions) do
         {:ok, result} when is_boolean(result) -> result
         {:ok, _non_boolean} -> false
         {:error, _reason} -> false
@@ -128,16 +128,20 @@ defmodule SC.ConditionEvaluator do
   def in_state?(_state_id, _context), do: false
 
   @doc """
-  Register SCXML-specific functions with Predicator.
-  """
-  @spec register_scxml_functions(map()) :: :ok
-  def register_scxml_functions(context) do
-    # Register In(state_id) function for SCXML state checking
-    Predicator.register_function("In", 1, fn [state_id], _eval_context ->
-      result = in_state?(state_id, context)
-      {:ok, result}
-    end)
+  Build SCXML-specific functions for Predicator v2.0.
 
-    :ok
+  Returns a map of function names to {arity, function} tuples for use with
+  the functions option in Predicator.evaluate/3.
+  """
+  @spec build_scxml_functions(map()) :: %{String.t() => {integer(), function()}}
+  def build_scxml_functions(context) do
+    %{
+      "In" =>
+        {1,
+         fn [state_id], _eval_context ->
+           result = in_state?(state_id, context)
+           {:ok, result}
+         end}
+    }
   end
 end
