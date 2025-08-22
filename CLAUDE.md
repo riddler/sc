@@ -178,6 +178,7 @@ All parsed SCXML elements include precise source location information for valida
 
 ## Dependencies
 
+- **`predicator`** (~> 2.0) - Safe condition (boolean predicate) evaluator
 - **`saxy`** (~> 1.6) - Fast, memory-efficient SAX XML parser with position tracking support
 
 ## Development Dependencies
