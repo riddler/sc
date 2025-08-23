@@ -1,8 +1,8 @@
-defmodule SC.ActionExecutorRaiseTest do
+defmodule SC.Actions.ActionExecutorRaiseTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
 
-  alias SC.{ActionExecutor, Document, Parser.SCXML}
+  alias SC.{Actions.ActionExecutor, Document, Parser.SCXML}
 
   describe "raise action execution" do
     test "executes raise action during onentry" do

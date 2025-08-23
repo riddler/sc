@@ -7,7 +7,7 @@ defmodule SC.Interpreter do
   """
 
   alias SC.{
-    ActionExecutor,
+    Actions.ActionExecutor,
     ConditionEvaluator,
     Configuration,
     Document,

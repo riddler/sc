@@ -1,4 +1,4 @@
-defmodule SC.LogAction do
+defmodule SC.Actions.LogAction do
   @moduledoc """
   Represents a <log> element in SCXML.
 

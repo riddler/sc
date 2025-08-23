@@ -1,4 +1,4 @@
-defmodule SC.ActionExecutor do
+defmodule SC.Actions.ActionExecutor do
   @moduledoc """
   Executes SCXML actions during state transitions.
 
@@ -6,7 +6,7 @@ defmodule SC.ActionExecutor do
   and other actions that occur during onentry and onexit processing.
   """
 
-  alias SC.{Document, LogAction, RaiseAction}
+  alias SC.{Actions.LogAction, Actions.RaiseAction, Document}
   require Logger
 
   @doc """

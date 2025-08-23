@@ -1,4 +1,4 @@
-defmodule SC.RaiseAction do
+defmodule SC.Actions.RaiseAction do
   @moduledoc """
   Represents a <raise> action in SCXML.
 

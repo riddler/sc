@@ -1,6 +1,6 @@
-defmodule SC.RaiseTest do
+defmodule SC.Actions.RaiseTest do
   use ExUnit.Case
-  alias SC.{Parser.SCXML, RaiseAction}
+  alias SC.{Actions.LogAction, Actions.RaiseAction, Parser.SCXML}
 
   describe "raise element parsing" do
     test "parses raise element in onentry block" do
@@ -84,9 +84,9 @@ defmodule SC.RaiseTest do
       assert length(state.onentry_actions) == 3
       [log1, raise_action, log2] = state.onentry_actions
 
-      assert %SC.LogAction{} = log1
+      assert %LogAction{} = log1
       assert %RaiseAction{event: "start_internal"} = raise_action
-      assert %SC.LogAction{} = log2
+      assert %LogAction{} = log2
     end
 
     test "handles raise element without event attribute" do

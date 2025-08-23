@@ -1,7 +1,7 @@
 defmodule SC.Parser.SCXML.StateStackCoverageTest do
   use ExUnit.Case
   alias SC.Parser.SCXML.StateStack
-  alias SC.{LogAction, RaiseAction}
+  alias SC.Actions.{LogAction, RaiseAction}
 
   describe "StateStack edge cases for coverage" do
     test "handle_onentry_end with final state parent" do

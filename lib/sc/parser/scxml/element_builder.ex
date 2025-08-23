@@ -6,7 +6,7 @@ defmodule SC.Parser.SCXML.ElementBuilder do
   and SC.DataElement structs with proper attribute parsing and location tracking.
   """
 
-  alias SC.{ConditionEvaluator, LogAction, RaiseAction}
+  alias SC.{Actions.LogAction, Actions.RaiseAction, ConditionEvaluator}
   alias SC.Parser.SCXML.LocationTracker
 
   @doc """
