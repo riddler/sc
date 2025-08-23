@@ -9,7 +9,7 @@ defmodule SC.Actions.RaiseAction do
 
   @type t :: %__MODULE__{
           event: String.t() | nil,
-          source_location: SC.SourceLocation.t() | nil
+          source_location: map() | nil
         }
 
   defstruct [

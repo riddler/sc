@@ -228,7 +228,7 @@ defmodule SC.Parser.SCXML.ElementBuilder do
   @doc """
   Build an SC.LogAction from XML attributes and location info.
   """
-  @spec build_log_action(list(), map(), String.t(), map()) :: SC.LogAction.t()
+  @spec build_log_action(list(), map(), String.t(), map()) :: LogAction.t()
   def build_log_action(attributes, location, xml_string, _element_counts) do
     attrs_map = attributes_to_map(attributes)
 
@@ -249,7 +249,7 @@ defmodule SC.Parser.SCXML.ElementBuilder do
   @doc """
   Build an SC.RaiseAction from XML attributes and location info.
   """
-  @spec build_raise_action(list(), map(), String.t(), map()) :: SC.RaiseAction.t()
+  @spec build_raise_action(list(), map(), String.t(), map()) :: RaiseAction.t()
   def build_raise_action(attributes, location, xml_string, _element_counts) do
     attrs_map = attributes_to_map(attributes)
 
