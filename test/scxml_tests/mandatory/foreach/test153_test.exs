@@ -1,7 +1,17 @@
 defmodule SCXMLTest.Foreach.Test153 do
   use SC.Case
   @tag :scxml_w3
-  @tag required_features: [:assign_elements, :basic_states, :conditional_transitions, :data_elements, :datamodel, :event_transitions, :final_states, :log_elements, :onentry_actions]
+  @tag required_features: [
+         :assign_elements,
+         :basic_states,
+         :conditional_transitions,
+         :data_elements,
+         :datamodel,
+         :event_transitions,
+         :final_states,
+         :log_elements,
+         :onentry_actions
+       ]
   @tag conformance: "mandatory", spec: "foreach"
   test "test153" do
     xml = """

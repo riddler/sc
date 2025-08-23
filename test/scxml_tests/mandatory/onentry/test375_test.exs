@@ -1,7 +1,14 @@
 defmodule SCXMLTest.Onentry.Test375 do
   use SC.Case
   @tag :scxml_w3
-  @tag required_features: [:basic_states, :event_transitions, :final_states, :log_elements, :onentry_actions, :raise_elements]
+  @tag required_features: [
+         :basic_states,
+         :event_transitions,
+         :final_states,
+         :log_elements,
+         :onentry_actions,
+         :raise_elements
+       ]
   @tag conformance: "mandatory", spec: "onentry"
   test "test375" do
     xml = """

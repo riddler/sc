@@ -1,7 +1,15 @@
 defmodule SCXMLTest.Onexit.Test377 do
   use SC.Case
   @tag :scxml_w3
-  @tag required_features: [:basic_states, :event_transitions, :final_states, :log_elements, :onentry_actions, :onexit_actions, :raise_elements]
+  @tag required_features: [
+         :basic_states,
+         :event_transitions,
+         :final_states,
+         :log_elements,
+         :onentry_actions,
+         :onexit_actions,
+         :raise_elements
+       ]
   @tag conformance: "mandatory", spec: "onexit"
   test "test377" do
     xml = """

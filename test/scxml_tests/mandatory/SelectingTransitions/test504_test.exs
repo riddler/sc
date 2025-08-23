@@ -1,7 +1,20 @@
 defmodule SCXMLTest.SelectingTransitions.Test504 do
   use SC.Case
   @tag :scxml_w3
-  @tag required_features: [:assign_elements, :basic_states, :conditional_transitions, :data_elements, :datamodel, :event_transitions, :final_states, :log_elements, :onentry_actions, :onexit_actions, :parallel_states, :raise_elements]
+  @tag required_features: [
+         :assign_elements,
+         :basic_states,
+         :conditional_transitions,
+         :data_elements,
+         :datamodel,
+         :event_transitions,
+         :final_states,
+         :log_elements,
+         :onentry_actions,
+         :onexit_actions,
+         :parallel_states,
+         :raise_elements
+       ]
   @tag conformance: "mandatory", spec: "SelectingTransitions"
   test "test504" do
     xml = """

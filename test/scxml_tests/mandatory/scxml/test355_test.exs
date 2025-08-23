@@ -1,7 +1,13 @@
 defmodule SCXMLTest.Scxml.Test355 do
   use SC.Case
   @tag :scxml_w3
-  @tag required_features: [:basic_states, :event_transitions, :final_states, :log_elements, :onentry_actions]
+  @tag required_features: [
+         :basic_states,
+         :event_transitions,
+         :final_states,
+         :log_elements,
+         :onentry_actions
+       ]
   @tag conformance: "mandatory", spec: "scxml"
   test "test355" do
     xml = """

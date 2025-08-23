@@ -1,7 +1,18 @@
 defmodule SCXMLTest.If.Test148 do
   use SC.Case
   @tag :scxml_w3
-  @tag required_features: [:assign_elements, :basic_states, :conditional_transitions, :data_elements, :datamodel, :event_transitions, :final_states, :log_elements, :onentry_actions, :raise_elements]
+  @tag required_features: [
+         :assign_elements,
+         :basic_states,
+         :conditional_transitions,
+         :data_elements,
+         :datamodel,
+         :event_transitions,
+         :final_states,
+         :log_elements,
+         :onentry_actions,
+         :raise_elements
+       ]
   @tag conformance: "mandatory", spec: "if"
   test "test148" do
     xml = """
