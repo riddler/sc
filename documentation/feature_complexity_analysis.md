@@ -26,7 +26,7 @@ These are the most blocking features - they appear in most failing tests:
 - Medium complexity - needs basic expression evaluation
 - Example: `<log expr="'test message'" label="DEBUG" />`
 
-**onexit_actions (21 tests blocked)**  
+#### onexit_actions (21 tests blocked)
 
 - Actions executed when exiting a state
 - Similar complexity to onentry, but during exit phase
