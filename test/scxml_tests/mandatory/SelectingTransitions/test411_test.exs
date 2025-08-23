@@ -1,6 +1,7 @@
 defmodule SCXMLTest.SelectingTransitions.Test411 do
   use SC.Case
   @tag :scxml_w3
+  @tag required_features: [:basic_states, :compound_states, :conditional_transitions, :event_transitions, :final_states, :log_elements, :onentry_actions, :raise_elements, :send_elements]
   @tag conformance: "mandatory", spec: "SelectingTransitions"
   test "test411" do
     xml = """

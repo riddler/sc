@@ -1,6 +1,7 @@
 defmodule SCXMLTest.Events.Test401 do
   use SC.Case
   @tag :scxml_w3
+  @tag required_features: [:assign_elements, :basic_states, :event_transitions, :final_states, :log_elements, :onentry_actions, :send_elements]
   @tag conformance: "mandatory", spec: "events"
   test "test401" do
     xml = """

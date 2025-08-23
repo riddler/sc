@@ -1,6 +1,7 @@
 defmodule SCIONTest.Script.Test0Test do
   use SC.Case
   @tag :scion
+  @tag required_features: [:basic_states, :conditional_transitions, :data_elements, :datamodel, :event_transitions, :script_elements]
   @tag spec: "script"
   test "test0" do
     xml = """

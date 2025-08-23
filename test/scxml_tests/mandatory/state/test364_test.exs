@@ -1,6 +1,7 @@
 defmodule SCXMLTest.State.Test364 do
   use SC.Case
   @tag :scxml_w3
+  @tag required_features: [:basic_states, :compound_states, :event_transitions, :final_states, :initial_elements, :log_elements, :onentry_actions, :parallel_states, :raise_elements, :send_elements]
   @tag conformance: "mandatory", spec: "state"
   test "test364" do
     xml = """

@@ -1,6 +1,7 @@
 defmodule SCXMLTest.Data.Test276 do
   use SC.Case
   @tag :scxml_w3
+  @tag required_features: [:basic_states, :event_transitions, :final_states, :log_elements, :onentry_actions]
   @tag conformance: "mandatory", spec: "data"
   test "test276" do
     xml = """

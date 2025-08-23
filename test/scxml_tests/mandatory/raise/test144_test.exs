@@ -1,6 +1,7 @@
 defmodule SCXMLTest.Raise.Test144 do
   use SC.Case
   @tag :scxml_w3
+  @tag required_features: [:basic_states, :event_transitions, :final_states, :log_elements, :onentry_actions, :raise_elements]
   @tag conformance: "mandatory", spec: "raise"
   test "test144" do
     xml = """

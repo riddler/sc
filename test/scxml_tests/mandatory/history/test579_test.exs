@@ -1,6 +1,7 @@
 defmodule SCXMLTest.History.Test579 do
   use SC.Case
   @tag :scxml_w3
+  @tag required_features: [:assign_elements, :basic_states, :conditional_transitions, :data_elements, :datamodel, :event_transitions, :final_states, :history_states, :initial_elements, :log_elements, :onentry_actions, :onexit_actions, :raise_elements, :send_elements]
   @tag conformance: "mandatory", spec: "history"
   test "test579" do
     xml = """
