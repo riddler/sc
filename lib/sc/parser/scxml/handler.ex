@@ -47,36 +47,46 @@ defmodule SC.Parser.SCXML.Handler do
   end
 
   @impl Saxy.Handler
-  def handle_event(:end_element, name, state) do
-    case name do
-      "scxml" ->
-        {:ok, state}
+  def handle_event(:end_element, "scxml", state) do
+    {:ok, state}
+  end
 
-      state_type when state_type in ["state", "parallel", "final", "initial"] ->
-        StateStack.handle_state_end(state)
+  def handle_event(:end_element, state_type, state)
+      when state_type in ["state", "parallel", "final", "initial"] do
+    StateStack.handle_state_end(state)
+  end
 
-      "transition" ->
-        StateStack.handle_transition_end(state)
+  def handle_event(:end_element, "transition", state) do
+    StateStack.handle_transition_end(state)
+  end
 
-      "datamodel" ->
-        StateStack.handle_datamodel_end(state)
+  def handle_event(:end_element, "datamodel", state) do
+    StateStack.handle_datamodel_end(state)
+  end
 
-      "data" ->
-        StateStack.handle_data_end(state)
+  def handle_event(:end_element, "data", state) do
+    StateStack.handle_data_end(state)
+  end
 
-      "onentry" ->
-        StateStack.handle_onentry_end(state)
+  def handle_event(:end_element, "onentry", state) do
+    StateStack.handle_onentry_end(state)
+  end
 
-      "onexit" ->
-        StateStack.handle_onexit_end(state)
+  def handle_event(:end_element, "onexit", state) do
+    StateStack.handle_onexit_end(state)
+  end
 
-      "log" ->
-        StateStack.handle_log_end(state)
+  def handle_event(:end_element, "log", state) do
+    StateStack.handle_log_end(state)
+  end
 
-      _unknown_element ->
-        # Pop unknown element from stack
-        {:ok, StateStack.pop_element(state)}
-    end
+  def handle_event(:end_element, "raise", state) do
+    StateStack.handle_raise_end(state)
+  end
+
+  def handle_event(:end_element, _unknown_element, state) do
+    # Pop unknown element from stack
+    {:ok, StateStack.pop_element(state)}
   end
 
   @impl Saxy.Handler
@@ -103,46 +113,57 @@ defmodule SC.Parser.SCXML.Handler do
     {location, updated_state}
   end
 
-  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
-  defp dispatch_element_start(name, attributes, location, state) do
-    case name do
-      "scxml" ->
-        handle_scxml_start(attributes, location, state)
+  defp dispatch_element_start("scxml", attributes, location, state) do
+    handle_scxml_start(attributes, location, state)
+  end
 
-      "state" ->
-        handle_state_start(attributes, location, state)
+  defp dispatch_element_start("state", attributes, location, state) do
+    handle_state_start(attributes, location, state)
+  end
 
-      "parallel" ->
-        handle_parallel_start(attributes, location, state)
+  defp dispatch_element_start("parallel", attributes, location, state) do
+    handle_parallel_start(attributes, location, state)
+  end
 
-      "final" ->
-        handle_final_start(attributes, location, state)
+  defp dispatch_element_start("final", attributes, location, state) do
+    handle_final_start(attributes, location, state)
+  end
 
-      "initial" ->
-        handle_initial_start(attributes, location, state)
+  defp dispatch_element_start("initial", attributes, location, state) do
+    handle_initial_start(attributes, location, state)
+  end
 
-      "transition" ->
-        handle_transition_start(attributes, location, state)
+  defp dispatch_element_start("transition", attributes, location, state) do
+    handle_transition_start(attributes, location, state)
+  end
 
-      "datamodel" ->
-        handle_datamodel_start(state)
+  defp dispatch_element_start("datamodel", _attributes, _location, state) do
+    handle_datamodel_start(state)
+  end
 
-      "data" ->
-        handle_data_start(attributes, location, state)
+  defp dispatch_element_start("data", attributes, location, state) do
+    handle_data_start(attributes, location, state)
+  end
 
-      "onentry" ->
-        handle_onentry_start(state)
+  defp dispatch_element_start("onentry", _attributes, _location, state) do
+    handle_onentry_start(state)
+  end
 
-      "onexit" ->
-        handle_onexit_start(state)
+  defp dispatch_element_start("onexit", _attributes, _location, state) do
+    handle_onexit_start(state)
+  end
 
-      "log" ->
-        handle_log_start(attributes, location, state)
+  defp dispatch_element_start("log", attributes, location, state) do
+    handle_log_start(attributes, location, state)
+  end
 
-      _unknown_element_name ->
-        # Skip unknown elements but track them in stack
-        {:ok, StateStack.push_element(state, name, nil)}
-    end
+  defp dispatch_element_start("raise", attributes, location, state) do
+    handle_raise_start(attributes, location, state)
+  end
+
+  defp dispatch_element_start(unknown_element_name, _attributes, _location, state) do
+    # Skip unknown elements but track them in stack
+    {:ok, StateStack.push_element(state, unknown_element_name, nil)}
   end
 
   # Private element start handlers
@@ -284,5 +305,22 @@ defmodule SC.Parser.SCXML.Handler do
     }
 
     {:ok, StateStack.push_element(updated_state, "log", log_action)}
+  end
+
+  defp handle_raise_start(attributes, location, state) do
+    raise_action =
+      ElementBuilder.build_raise_action(
+        attributes,
+        location,
+        state.xml_string,
+        state.element_counts
+      )
+
+    updated_state = %{
+      state
+      | current_element: {:raise, raise_action}
+    }
+
+    {:ok, StateStack.push_element(updated_state, "raise", raise_action)}
   end
 end

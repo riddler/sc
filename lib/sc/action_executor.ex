@@ -6,7 +6,7 @@ defmodule SC.ActionExecutor do
   and other actions that occur during onentry and onexit processing.
   """
 
-  alias SC.{Document, LogAction}
+  alias SC.{Document, LogAction, RaiseAction}
   require Logger
 
   @doc """
@@ -61,6 +61,17 @@ defmodule SC.ActionExecutor do
 
     # Use Elixir's Logger to output the log message
     Logger.info("#{label}: #{message} (state: #{state_id}, phase: #{phase})")
+  end
+
+  defp execute_single_action(%RaiseAction{} = raise_action, state_id, phase) do
+    # Execute raise action by generating an internal event
+    # For now, we'll just log that the event would be raised
+    # Full event queue integration will come in a future phase
+    event = raise_action.event || "anonymous_event"
+
+    Logger.info("Raising event '#{event}' (state: #{state_id}, phase: #{phase})")
+
+    # TODO: Add to interpreter's internal event queue when event processing is implemented
   end
 
   defp execute_single_action(unknown_action, state_id, phase) do

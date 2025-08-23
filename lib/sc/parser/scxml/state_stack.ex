@@ -223,118 +223,115 @@ defmodule SC.Parser.SCXML.StateStack do
   Handle the end of an onentry element by moving collected actions to parent state.
   """
   @spec handle_onentry_end(map()) :: {:ok, map()}
-  def handle_onentry_end(state) do
-    # Get the onentry block which should contain actions
-    {_element_name, actions} = hd(state.stack)
-    parent_stack = tl(state.stack)
-
-    # actions could be :onentry_block or a list of actual actions
+  def handle_onentry_end(%{stack: [{_element_name, actions} | [{"state", parent_state} | rest]]} = state) do
     collected_actions = if is_list(actions), do: actions, else: []
+    updated_parent = %{parent_state | onentry_actions: parent_state.onentry_actions ++ collected_actions}
+    {:ok, %{state | stack: [{"state", updated_parent} | rest]}}
+  end
 
-    case parent_stack do
-      [{"state", parent_state} | rest] ->
-        updated_parent = %{
-          parent_state
-          | onentry_actions: parent_state.onentry_actions ++ collected_actions
-        }
+  def handle_onentry_end(%{stack: [{_element_name, actions} | [{"final", parent_state} | rest]]} = state) do
+    collected_actions = if is_list(actions), do: actions, else: []
+    updated_parent = %{parent_state | onentry_actions: parent_state.onentry_actions ++ collected_actions}
+    {:ok, %{state | stack: [{"final", updated_parent} | rest]}}
+  end
 
-        {:ok, %{state | stack: [{"state", updated_parent} | rest]}}
+  def handle_onentry_end(%{stack: [{_element_name, actions} | [{"parallel", parent_state} | rest]]} = state) do
+    collected_actions = if is_list(actions), do: actions, else: []
+    updated_parent = %{parent_state | onentry_actions: parent_state.onentry_actions ++ collected_actions}
+    {:ok, %{state | stack: [{"parallel", updated_parent} | rest]}}
+  end
 
-      [{"final", parent_state} | rest] ->
-        updated_parent = %{
-          parent_state
-          | onentry_actions: parent_state.onentry_actions ++ collected_actions
-        }
-
-        {:ok, %{state | stack: [{"final", updated_parent} | rest]}}
-
-      [{"parallel", parent_state} | rest] ->
-        updated_parent = %{
-          parent_state
-          | onentry_actions: parent_state.onentry_actions ++ collected_actions
-        }
-
-        {:ok, %{state | stack: [{"parallel", updated_parent} | rest]}}
-
-      _other_parent ->
-        # Pop the onentry element if no valid parent found
-        {:ok, pop_element(state)}
-    end
+  def handle_onentry_end(state) do
+    # No valid parent found - pop the onentry element
+    {:ok, pop_element(state)}
   end
 
   @doc """
   Handle the end of an onexit element by moving collected actions to parent state.
   """
   @spec handle_onexit_end(map()) :: {:ok, map()}
-  def handle_onexit_end(state) do
-    # Get the onexit block which should contain actions
-    {_element_name, actions} = hd(state.stack)
-    parent_stack = tl(state.stack)
-
-    # actions could be :onexit_block or a list of actual actions
+  def handle_onexit_end(%{stack: [{_element_name, actions} | [{"state", parent_state} | rest]]} = state) do
     collected_actions = if is_list(actions), do: actions, else: []
+    updated_parent = %{parent_state | onexit_actions: parent_state.onexit_actions ++ collected_actions}
+    {:ok, %{state | stack: [{"state", updated_parent} | rest]}}
+  end
 
-    case parent_stack do
-      [{"state", parent_state} | rest] ->
-        updated_parent = %{
-          parent_state
-          | onexit_actions: parent_state.onexit_actions ++ collected_actions
-        }
+  def handle_onexit_end(%{stack: [{_element_name, actions} | [{"final", parent_state} | rest]]} = state) do
+    collected_actions = if is_list(actions), do: actions, else: []
+    updated_parent = %{parent_state | onexit_actions: parent_state.onexit_actions ++ collected_actions}
+    {:ok, %{state | stack: [{"final", updated_parent} | rest]}}
+  end
 
-        {:ok, %{state | stack: [{"state", updated_parent} | rest]}}
+  def handle_onexit_end(%{stack: [{_element_name, actions} | [{"parallel", parent_state} | rest]]} = state) do
+    collected_actions = if is_list(actions), do: actions, else: []
+    updated_parent = %{parent_state | onexit_actions: parent_state.onexit_actions ++ collected_actions}
+    {:ok, %{state | stack: [{"parallel", updated_parent} | rest]}}
+  end
 
-      [{"final", parent_state} | rest] ->
-        updated_parent = %{
-          parent_state
-          | onexit_actions: parent_state.onexit_actions ++ collected_actions
-        }
-
-        {:ok, %{state | stack: [{"final", updated_parent} | rest]}}
-
-      [{"parallel", parent_state} | rest] ->
-        updated_parent = %{
-          parent_state
-          | onexit_actions: parent_state.onexit_actions ++ collected_actions
-        }
-
-        {:ok, %{state | stack: [{"parallel", updated_parent} | rest]}}
-
-      _other_parent ->
-        # Pop the onexit element if no valid parent found
-        {:ok, pop_element(state)}
-    end
+  def handle_onexit_end(state) do
+    # No valid parent found - pop the onexit element
+    {:ok, pop_element(state)}
   end
 
   @doc """
   Handle the end of a log element by adding it to the parent onentry/onexit block.
   """
   @spec handle_log_end(map()) :: {:ok, map()}
+  def handle_log_end(%{stack: [{_element_name, log_action} | [{"onentry", actions} | rest]]} = state)
+      when is_list(actions) do
+    updated_actions = actions ++ [log_action]
+    {:ok, %{state | stack: [{"onentry", updated_actions} | rest]}}
+  end
+
+  def handle_log_end(%{stack: [{_element_name, log_action} | [{"onentry", :onentry_block} | rest]]} = state) do
+    # First action in this onentry block
+    {:ok, %{state | stack: [{"onentry", [log_action]} | rest]}}
+  end
+
+  def handle_log_end(%{stack: [{_element_name, log_action} | [{"onexit", actions} | rest]]} = state)
+      when is_list(actions) do
+    updated_actions = actions ++ [log_action]
+    {:ok, %{state | stack: [{"onexit", updated_actions} | rest]}}
+  end
+
+  def handle_log_end(%{stack: [{_element_name, log_action} | [{"onexit", :onexit_block} | rest]]} = state) do
+    # First action in this onexit block
+    {:ok, %{state | stack: [{"onexit", [log_action]} | rest]}}
+  end
+
   def handle_log_end(state) do
-    # Get the log action from the top of the stack
-    {_element_name, log_action} = hd(state.stack)
-    parent_stack = tl(state.stack)
+    # Log element not in an onentry/onexit context, just pop it
+    {:ok, pop_element(state)}
+  end
 
-    # Add the log action to the parent onentry/onexit block
-    case parent_stack do
-      [{"onentry", actions} | rest] when is_list(actions) ->
-        updated_actions = actions ++ [log_action]
-        {:ok, %{state | stack: [{"onentry", updated_actions} | rest]}}
+  @doc """
+  Handle the end of a raise element by adding it to the parent onentry/onexit block.
+  """
+  @spec handle_raise_end(map()) :: {:ok, map()}
+  def handle_raise_end(%{stack: [{_element_name, raise_action} | [{"onentry", actions} | rest]]} = state)
+      when is_list(actions) do
+    updated_actions = actions ++ [raise_action]
+    {:ok, %{state | stack: [{"onentry", updated_actions} | rest]}}
+  end
 
-      [{"onentry", :onentry_block} | rest] ->
-        # First action in this onentry block
-        {:ok, %{state | stack: [{"onentry", [log_action]} | rest]}}
+  def handle_raise_end(%{stack: [{_element_name, raise_action} | [{"onentry", :onentry_block} | rest]]} = state) do
+    # First action in this onentry block
+    {:ok, %{state | stack: [{"onentry", [raise_action]} | rest]}}
+  end
 
-      [{"onexit", actions} | rest] when is_list(actions) ->
-        updated_actions = actions ++ [log_action]
-        {:ok, %{state | stack: [{"onexit", updated_actions} | rest]}}
+  def handle_raise_end(%{stack: [{_element_name, raise_action} | [{"onexit", actions} | rest]]} = state)
+      when is_list(actions) do
+    updated_actions = actions ++ [raise_action]
+    {:ok, %{state | stack: [{"onexit", updated_actions} | rest]}}
+  end
 
-      [{"onexit", :onexit_block} | rest] ->
-        # First action in this onexit block
-        {:ok, %{state | stack: [{"onexit", [log_action]} | rest]}}
+  def handle_raise_end(%{stack: [{_element_name, raise_action} | [{"onexit", :onexit_block} | rest]]} = state) do
+    # First action in this onexit block
+    {:ok, %{state | stack: [{"onexit", [raise_action]} | rest]}}
+  end
 
-      _other_parent ->
-        # Log element not in an onentry/onexit context, just pop it
-        {:ok, pop_element(state)}
-    end
+  def handle_raise_end(state) do
+    # Raise element not in an onentry/onexit context, just pop it
+    {:ok, pop_element(state)}
   end
 end

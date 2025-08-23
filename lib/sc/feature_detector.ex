@@ -68,7 +68,7 @@ defmodule SC.FeatureDetector do
       onexit_actions: :supported,
       send_elements: :unsupported,
       log_elements: :supported,
-      raise_elements: :unsupported,
+      raise_elements: :supported,
 
       # Advanced transitions (unsupported)
       targetless_transitions: :unsupported,
