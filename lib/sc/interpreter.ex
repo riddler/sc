@@ -28,11 +28,11 @@ defmodule SC.Interpreter do
         initial_config = get_initial_configuration(optimized_document)
         state_chart = StateChart.new(optimized_document, initial_config)
 
-        # Execute onentry actions for initial states
+        # Execute onentry actions for initial states and queue any raised events
         initial_states = MapSet.to_list(Configuration.active_states(initial_config))
-        ActionExecutor.execute_onentry_actions(initial_states, optimized_document)
+        state_chart = ActionExecutor.execute_onentry_actions(initial_states, state_chart)
 
-        # Execute microsteps (eventless transitions) after initialization
+        # Execute microsteps (eventless transitions and internal events) after initialization
         state_chart = execute_microsteps(state_chart)
 
         # Log warnings if any (TODO: Use proper logging)
@@ -121,22 +121,34 @@ defmodule SC.Interpreter do
   end
 
   defp execute_microsteps(%StateChart{} = state_chart, iterations) do
-    eventless_transitions = find_eventless_transitions(state_chart)
+    # First, try to process any internal events (higher priority than eventless transitions)
+    {internal_event, state_chart_after_dequeue} = StateChart.dequeue_event(state_chart)
 
-    case eventless_transitions do
-      [] ->
-        # No more eventless transitions - stable configuration reached (end of macrostep)
-        state_chart
+    case internal_event do
+      %SC.Event{} = event ->
+        # Process the internal event
+        {:ok, state_chart_after_event} = send_event(state_chart_after_dequeue, event)
+        # Continue with more microsteps
+        execute_microsteps(state_chart_after_event, iterations + 1)
 
-      transitions ->
-        # Execute microstep with these eventless transitions
-        new_config =
-          execute_transitions(state_chart.configuration, transitions, state_chart.document)
+      nil ->
+        # No internal events, check for eventless transitions
+        eventless_transitions = find_eventless_transitions(state_chart)
 
-        new_state_chart = StateChart.update_configuration(state_chart, new_config)
+        case eventless_transitions do
+          [] ->
+            # No more eventless transitions or internal events - stable configuration reached (end of macrostep)
+            state_chart
 
-        # Continue executing microsteps until stable (recursive call)
-        execute_microsteps(new_state_chart, iterations + 1)
+          transitions ->
+            # Execute microstep with these eventless transitions
+            new_config =
+              execute_transitions(state_chart.configuration, transitions, state_chart.document)
+
+            new_state_chart = StateChart.update_configuration(state_chart, new_config)
+            # Continue executing microsteps until stable (recursive call)
+            execute_microsteps(new_state_chart, iterations + 1)
+        end
     end
   end
 

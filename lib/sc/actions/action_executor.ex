@@ -6,19 +6,43 @@ defmodule SC.Actions.ActionExecutor do
   and other actions that occur during onentry and onexit processing.
   """
 
-  alias SC.{Actions.LogAction, Actions.RaiseAction, Document}
+  alias SC.{Actions.LogAction, Actions.RaiseAction, Document, StateChart}
   require Logger
 
   @doc """
   Execute onentry actions for a list of states being entered.
+  Returns the updated state chart with any events raised by actions.
   """
-  @spec execute_onentry_actions([String.t()], Document.t()) :: :ok
-  def execute_onentry_actions(entering_states, document) do
+  @spec execute_onentry_actions([String.t()], SC.StateChart.t()) :: SC.StateChart.t()
+  def execute_onentry_actions(entering_states, %SC.StateChart{} = state_chart) do
+    entering_states
+    |> Enum.reduce(state_chart, fn state_id, acc_state_chart ->
+      case Document.find_state(acc_state_chart.document, state_id) do
+        %{onentry_actions: [_first | _rest] = actions} ->
+          execute_actions(actions, state_id, :onentry, acc_state_chart)
+
+        _other_state ->
+          acc_state_chart
+      end
+    end)
+  end
+
+  # Legacy API for backward compatibility with Document-based calls
+  def execute_onentry_actions(entering_states, %Document{} = document) do
     entering_states
     |> Enum.each(fn state_id ->
       case Document.find_state(document, state_id) do
         %{onentry_actions: [_first | _rest] = actions} ->
-          execute_actions(actions, state_id, :onentry)
+          # Create a temporary state chart for action execution
+          temp_state_chart = %SC.StateChart{
+            document: document,
+            configuration: %SC.Configuration{},
+            internal_queue: [],
+            external_queue: []
+          }
+
+          # Execute actions but ignore any raised events (backward compatibility)
+          _updated_state_chart = execute_actions(actions, state_id, :onentry, temp_state_chart)
 
         _other_state ->
           :ok
@@ -28,14 +52,37 @@ defmodule SC.Actions.ActionExecutor do
 
   @doc """
   Execute onexit actions for a list of states being exited.
+  Returns the updated state chart with any events raised by actions.
   """
-  @spec execute_onexit_actions([String.t()], Document.t()) :: :ok
-  def execute_onexit_actions(exiting_states, document) do
+  @spec execute_onexit_actions([String.t()], SC.StateChart.t()) :: SC.StateChart.t()
+  def execute_onexit_actions(exiting_states, %SC.StateChart{} = state_chart) do
+    exiting_states
+    |> Enum.reduce(state_chart, fn state_id, acc_state_chart ->
+      case Document.find_state(acc_state_chart.document, state_id) do
+        %{onexit_actions: [_first | _rest] = actions} ->
+          execute_actions(actions, state_id, :onexit, acc_state_chart)
+
+        _other_state ->
+          acc_state_chart
+      end
+    end)
+  end
+
+  def execute_onexit_actions(exiting_states, %Document{} = document) do
     exiting_states
     |> Enum.each(fn state_id ->
       case Document.find_state(document, state_id) do
         %{onexit_actions: [_first | _rest] = actions} ->
-          execute_actions(actions, state_id, :onexit)
+          # Create a temporary state chart for action execution
+          temp_state_chart = %SC.StateChart{
+            document: document,
+            configuration: %SC.Configuration{},
+            internal_queue: [],
+            external_queue: []
+          }
+
+          # Execute actions but ignore any raised events (backward compatibility)
+          _updated_state_chart = execute_actions(actions, state_id, :onexit, temp_state_chart)
 
         _other_state ->
           :ok
@@ -45,14 +92,14 @@ defmodule SC.Actions.ActionExecutor do
 
   # Private functions
 
-  defp execute_actions(actions, state_id, phase) do
+  defp execute_actions(actions, state_id, phase, state_chart) do
     actions
-    |> Enum.each(fn action ->
-      execute_single_action(action, state_id, phase)
+    |> Enum.reduce(state_chart, fn action, acc_state_chart ->
+      execute_single_action(action, state_id, phase, acc_state_chart)
     end)
   end
 
-  defp execute_single_action(%LogAction{} = log_action, state_id, phase) do
+  defp execute_single_action(%LogAction{} = log_action, state_id, phase, state_chart) do
     # Execute log action by evaluating the expression and logging the result
     label = log_action.label || "Log"
 
@@ -61,23 +108,35 @@ defmodule SC.Actions.ActionExecutor do
 
     # Use Elixir's Logger to output the log message
     Logger.info("#{label}: #{message} (state: #{state_id}, phase: #{phase})")
+
+    # Log actions don't modify the state chart
+    state_chart
   end
 
-  defp execute_single_action(%RaiseAction{} = raise_action, state_id, phase) do
+  defp execute_single_action(%RaiseAction{} = raise_action, state_id, phase, state_chart) do
     # Execute raise action by generating an internal event
-    # For now, we'll just log that the event would be raised
-    # Full event queue integration will come in a future phase
-    event = raise_action.event || "anonymous_event"
+    event_name = raise_action.event || "anonymous_event"
 
-    Logger.info("Raising event '#{event}' (state: #{state_id}, phase: #{phase})")
+    Logger.info("Raising event '#{event_name}' (state: #{state_id}, phase: #{phase})")
 
-    # NEXT: Add to interpreter's internal event queue when event processing is implemented
+    # Create internal event and enqueue it
+    internal_event = %SC.Event{
+      name: event_name,
+      data: %{},
+      origin: :internal
+    }
+
+    # Add to internal event queue
+    StateChart.enqueue_event(state_chart, internal_event)
   end
 
-  defp execute_single_action(unknown_action, state_id, phase) do
+  defp execute_single_action(unknown_action, state_id, phase, state_chart) do
     Logger.debug(
       "Unknown action type #{inspect(unknown_action)} in state #{state_id} during #{phase}"
     )
+
+    # Unknown actions don't modify the state chart
+    state_chart
   end
 
   # Simple expression evaluator for basic literals
