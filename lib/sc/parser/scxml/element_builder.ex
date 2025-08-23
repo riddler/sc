@@ -6,7 +6,7 @@ defmodule SC.Parser.SCXML.ElementBuilder do
   and SC.DataElement structs with proper attribute parsing and location tracking.
   """
 
-  alias SC.ConditionEvaluator
+  alias SC.{ConditionEvaluator, LogAction}
   alias SC.Parser.SCXML.LocationTracker
 
   @doc """
@@ -223,6 +223,27 @@ defmodule SC.Parser.SCXML.ElementBuilder do
       expr_location: expr_location,
       src_location: src_location
     }
+  end
+
+  @doc """
+  Build an SC.LogAction from XML attributes and location info.
+  """
+  @spec build_log_action(list(), map(), String.t(), map()) :: SC.LogAction.t()
+  def build_log_action(attributes, location, xml_string, _element_counts) do
+    attrs_map = attributes_to_map(attributes)
+
+    # Calculate attribute-specific locations
+    label_location = LocationTracker.attribute_location(xml_string, "label", location)
+    expr_location = LocationTracker.attribute_location(xml_string, "expr", location)
+
+    # Store both the original location and attribute-specific locations
+    detailed_location = %{
+      source: location,
+      label: label_location,
+      expr: expr_location
+    }
+
+    LogAction.new(attrs_map, detailed_location)
   end
 
   # Private utility functions

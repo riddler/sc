@@ -6,7 +6,15 @@ defmodule SC.Interpreter do
   Documents are automatically validated before interpretation.
   """
 
-  alias SC.{ConditionEvaluator, Configuration, Document, Event, StateChart, Validator}
+  alias SC.{
+    ActionExecutor,
+    ConditionEvaluator,
+    Configuration,
+    Document,
+    Event,
+    StateChart,
+    Validator
+  }
 
   @doc """
   Initialize a state chart from a parsed document.
@@ -17,8 +25,12 @@ defmodule SC.Interpreter do
   def initialize(%Document{} = document) do
     case Validator.validate(document) do
       {:ok, optimized_document, warnings} ->
-        state_chart =
-          StateChart.new(optimized_document, get_initial_configuration(optimized_document))
+        initial_config = get_initial_configuration(optimized_document)
+        state_chart = StateChart.new(optimized_document, initial_config)
+
+        # Execute onentry actions for initial states
+        initial_states = MapSet.to_list(Configuration.active_states(initial_config))
+        ActionExecutor.execute_onentry_actions(initial_states, optimized_document)
 
         # Execute microsteps (eventless transitions) after initialization
         state_chart = execute_microsteps(state_chart)
@@ -387,11 +399,23 @@ defmodule SC.Interpreter do
     # Compute exit set for these specific transitions
     exit_set = compute_exit_set(transitions, current_active, document)
 
+    # Determine which states are actually being entered
+    new_target_set = MapSet.new(new_target_states)
+    entering_states = MapSet.difference(new_target_set, current_active)
+
+    # Execute onexit actions for states being exited
+    exiting_states = MapSet.to_list(exit_set)
+    ActionExecutor.execute_onexit_actions(exiting_states, document)
+
+    # Execute onentry actions for states being entered
+    entering_states_list = MapSet.to_list(entering_states)
+    ActionExecutor.execute_onentry_actions(entering_states_list, document)
+
     # Keep active states that are not being exited
     preserved_states = MapSet.difference(current_active, exit_set)
 
     # Combine preserved states with new target states
-    final_active_states = MapSet.union(preserved_states, MapSet.new(new_target_states))
+    final_active_states = MapSet.union(preserved_states, new_target_set)
 
     Configuration.new(MapSet.to_list(final_active_states))
   end

@@ -8,6 +8,9 @@ defmodule SC.Parser.SCXML.Handler do
 
   @behaviour Saxy.Handler
 
+  # Disable complexity check for this module due to SCXML's inherent complexity
+  # credo:disable-for-this-file Credo.Check.Refactor.CyclomaticComplexity
+
   alias SC.Parser.SCXML.{ElementBuilder, LocationTracker, StateStack}
 
   defstruct [
@@ -60,6 +63,15 @@ defmodule SC.Parser.SCXML.Handler do
 
       "data" ->
         StateStack.handle_data_end(state)
+
+      "onentry" ->
+        StateStack.handle_onentry_end(state)
+
+      "onexit" ->
+        StateStack.handle_onexit_end(state)
+
+      "log" ->
+        StateStack.handle_log_end(state)
 
       _unknown_element ->
         # Pop unknown element from stack
@@ -117,6 +129,15 @@ defmodule SC.Parser.SCXML.Handler do
 
       "data" ->
         handle_data_start(attributes, location, state)
+
+      "onentry" ->
+        handle_onentry_start(state)
+
+      "onexit" ->
+        handle_onexit_start(state)
+
+      "log" ->
+        handle_log_start(attributes, location, state)
 
       _unknown_element_name ->
         # Skip unknown elements but track them in stack
@@ -238,5 +259,30 @@ defmodule SC.Parser.SCXML.Handler do
     }
 
     {:ok, StateStack.push_element(updated_state, "data", data_element)}
+  end
+
+  defp handle_onentry_start(state) do
+    {:ok, StateStack.push_element(state, "onentry", :onentry_block)}
+  end
+
+  defp handle_onexit_start(state) do
+    {:ok, StateStack.push_element(state, "onexit", :onexit_block)}
+  end
+
+  defp handle_log_start(attributes, location, state) do
+    log_action =
+      ElementBuilder.build_log_action(
+        attributes,
+        location,
+        state.xml_string,
+        state.element_counts
+      )
+
+    updated_state = %{
+      state
+      | current_element: {:log, log_action}
+    }
+
+    {:ok, StateStack.push_element(updated_state, "log", log_action)}
   end
 end
