@@ -71,7 +71,7 @@ defmodule SC.ActionExecutor do
 
     Logger.info("Raising event '#{event}' (state: #{state_id}, phase: #{phase})")
 
-    # TODO: Add to interpreter's internal event queue when event processing is implemented
+    # NEXT: Add to interpreter's internal event queue when event processing is implemented
   end
 
   defp execute_single_action(unknown_action, state_id, phase) do
