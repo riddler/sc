@@ -20,11 +20,13 @@ This document outlines the comprehensive plan to achieve near-complete SCXML (St
 ### Current Status (484 Total Tests) - UPDATED
 
 **Overall Test Results:**
+
 - ✅ **343 tests passing (70.9%)** - Strong foundation with Phase 1 executable content complete
 - ❌ **141 tests failing (29.1%)** - Primarily blocked by data model and advanced features
 - 🔄 **45 tests in regression suite** - Core functionality and executable content validated
 
 **Breakdown by Test Suite:**
+
 - 📊 **Internal Tests**: 484/484 passing (100%) - All core functionality working
 - 📊 **SCION Tests**: 41/127 passing (32.3%) - Blocked by data model features  
 - 📊 **W3C Tests**: 4/59 passing (6.8%) - Blocked by data model and advanced features
@@ -32,6 +34,7 @@ This document outlines the comprehensive plan to achieve near-complete SCXML (St
 ### Phase 1 Completion Status ✅
 
 **COMPLETED FEATURES:**
+
 - ✅ `<onentry>` Actions - Execute actions when entering states  
 - ✅ `<onexit>` Actions - Execute actions when exiting states
 - ✅ `<raise event="name"/>` Elements - Generate internal events for immediate processing
@@ -141,6 +144,7 @@ end
 **Target Coverage**: From 70.9% to ~90% (430+/484 tests passing)
 
 **Current Blocking Features Analysis:**
+
 - **datamodel**: Blocks 64+ tests (most SCION tests depend on this)
 - **data_elements**: Blocks 64+ tests (variable declaration/initialization)
 - **assign_elements**: Blocks 48+ tests (dynamic variable updates)
@@ -347,7 +351,7 @@ end
 ### Phase 1 Success Criteria ✅ COMPLETED
 
 - [x] ✅ 343 tests passing (70.9% coverage) - EXCEEDED 294 starting point
-- [x] ✅ All onentry/onexit actions executing correctly 
+- [x] ✅ All onentry/onexit actions executing correctly
 - [x] ✅ Internal event generation and processing working
 - [x] ✅ Logging infrastructure operational
 - [x] ✅ No regression in existing tests - All internal tests still passing

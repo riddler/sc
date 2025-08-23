@@ -209,14 +209,14 @@ defmodule Mix.Tasks.Test.Baseline do
         entries
         |> Enum.flat_map(fn entry ->
           full_path = Path.join(dir, entry)
-          
+
           cond do
             String.ends_with?(entry, "_test.exs") ->
               [full_path]
-            
+
             File.dir?(full_path) ->
               find_test_files_recursive(full_path)
-            
+
             true ->
               []
           end
