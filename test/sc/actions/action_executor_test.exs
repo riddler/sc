@@ -64,7 +64,7 @@ defmodule SC.Actions.ActionExecutorTest do
 
       # Should return unchanged state chart
       assert result == state_chart
-      assert length(result.internal_queue) == 0
+      assert Enum.empty?(result.internal_queue)
     end
 
     test "handles multiple states with mixed actions" do
@@ -126,7 +126,6 @@ defmodule SC.Actions.ActionExecutorTest do
     end
   end
 
-
   describe "execute_onexit_actions/2 with StateChart" do
     test "executes onexit actions correctly" do
       xml = """
@@ -173,7 +172,7 @@ defmodule SC.Actions.ActionExecutorTest do
       result = ActionExecutor.execute_onexit_actions(["s1"], state_chart)
 
       assert result == state_chart
-      assert length(result.internal_queue) == 0
+      assert Enum.empty?(result.internal_queue)
     end
 
     test "processes multiple exiting states" do
@@ -205,7 +204,6 @@ defmodule SC.Actions.ActionExecutorTest do
       assert "s2_exit" in event_names
     end
   end
-
 
   describe "action execution with different action types" do
     test "executes log actions with various expressions" do

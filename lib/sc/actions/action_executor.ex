@@ -27,7 +27,6 @@ defmodule SC.Actions.ActionExecutor do
     end)
   end
 
-
   @doc """
   Execute onexit actions for a list of states being exited.
   Returns the updated state chart with any events raised by actions.
@@ -45,7 +44,6 @@ defmodule SC.Actions.ActionExecutor do
       end
     end)
   end
-
 
   # Private functions
 
