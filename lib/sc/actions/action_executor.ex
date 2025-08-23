@@ -27,28 +27,6 @@ defmodule SC.Actions.ActionExecutor do
     end)
   end
 
-  # Legacy API for backward compatibility with Document-based calls
-  def execute_onentry_actions(entering_states, %Document{} = document) do
-    entering_states
-    |> Enum.each(fn state_id ->
-      case Document.find_state(document, state_id) do
-        %{onentry_actions: [_first | _rest] = actions} ->
-          # Create a temporary state chart for action execution
-          temp_state_chart = %SC.StateChart{
-            document: document,
-            configuration: %SC.Configuration{},
-            internal_queue: [],
-            external_queue: []
-          }
-
-          # Execute actions but ignore any raised events (backward compatibility)
-          _updated_state_chart = execute_actions(actions, state_id, :onentry, temp_state_chart)
-
-        _other_state ->
-          :ok
-      end
-    end)
-  end
 
   @doc """
   Execute onexit actions for a list of states being exited.
@@ -68,27 +46,6 @@ defmodule SC.Actions.ActionExecutor do
     end)
   end
 
-  def execute_onexit_actions(exiting_states, %Document{} = document) do
-    exiting_states
-    |> Enum.each(fn state_id ->
-      case Document.find_state(document, state_id) do
-        %{onexit_actions: [_first | _rest] = actions} ->
-          # Create a temporary state chart for action execution
-          temp_state_chart = %SC.StateChart{
-            document: document,
-            configuration: %SC.Configuration{},
-            internal_queue: [],
-            external_queue: []
-          }
-
-          # Execute actions but ignore any raised events (backward compatibility)
-          _updated_state_chart = execute_actions(actions, state_id, :onexit, temp_state_chart)
-
-        _other_state ->
-          :ok
-      end
-    end)
-  end
 
   # Private functions
 

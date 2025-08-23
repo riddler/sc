@@ -63,6 +63,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **`dispatch_element_start(...)` Function**: Converted from case statement to pattern matching function clauses
   - **StateStack Module**: Applied same pattern matching refactoring to action handling functions
 
+### Changed (Breaking)
+
+#### ActionExecutor API Modernization
+
+- **REMOVED**: `SC.Actions.ActionExecutor.execute_onentry_actions/2` function clause that accepted `%Document{}` as second parameter
+- **REMOVED**: `SC.Actions.ActionExecutor.execute_onexit_actions/2` function clause that accepted `%Document{}` as second parameter  
+- **BREAKING**: These functions now only accept `%StateChart{}` as the second parameter for proper event queue integration
+- **Migration**: Replace `ActionExecutor.execute_*_actions(states, document)` with `ActionExecutor.execute_*_actions(states, state_chart)`
+- **Benefit**: Action execution now properly integrates with the StateChart event queue system, enabling raised events to be processed correctly
+
 ### Technical Improvements
 
 - **SCXML Terminology Alignment**: Updated codebase to use proper SCXML specification terminology

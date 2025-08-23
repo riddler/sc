@@ -2,7 +2,7 @@ defmodule SC.Actions.ActionExecutorRaiseTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
 
-  alias SC.{Actions.ActionExecutor, Document, Parser.SCXML}
+  alias SC.{Actions.ActionExecutor, Configuration, Document, Parser.SCXML, StateChart}
 
   describe "raise action execution" do
     test "executes raise action during onentry" do
@@ -18,10 +18,11 @@ defmodule SC.Actions.ActionExecutorRaiseTest do
 
       {:ok, document} = SCXML.parse(xml)
       optimized_document = Document.build_lookup_maps(document)
+      state_chart = StateChart.new(optimized_document, %Configuration{})
 
       log_output =
         capture_log(fn ->
-          ActionExecutor.execute_onentry_actions(["s1"], optimized_document)
+          ActionExecutor.execute_onentry_actions(["s1"], state_chart)
         end)
 
       assert log_output =~ "Raising event 'test_event'"
@@ -42,10 +43,11 @@ defmodule SC.Actions.ActionExecutorRaiseTest do
 
       {:ok, document} = SCXML.parse(xml)
       optimized_document = Document.build_lookup_maps(document)
+      state_chart = StateChart.new(optimized_document, %Configuration{})
 
       log_output =
         capture_log(fn ->
-          ActionExecutor.execute_onexit_actions(["s1"], optimized_document)
+          ActionExecutor.execute_onexit_actions(["s1"], state_chart)
         end)
 
       assert log_output =~ "Raising event 'cleanup_event'"
@@ -68,10 +70,11 @@ defmodule SC.Actions.ActionExecutorRaiseTest do
 
       {:ok, document} = SCXML.parse(xml)
       optimized_document = Document.build_lookup_maps(document)
+      state_chart = StateChart.new(optimized_document, %Configuration{})
 
       log_output =
         capture_log(fn ->
-          ActionExecutor.execute_onentry_actions(["s1"], optimized_document)
+          ActionExecutor.execute_onentry_actions(["s1"], state_chart)
         end)
 
       # Verify the order of execution by finding the positions
@@ -106,10 +109,11 @@ defmodule SC.Actions.ActionExecutorRaiseTest do
 
       {:ok, document} = SCXML.parse(xml)
       optimized_document = Document.build_lookup_maps(document)
+      state_chart = StateChart.new(optimized_document, %Configuration{})
 
       log_output =
         capture_log(fn ->
-          ActionExecutor.execute_onentry_actions(["s1"], optimized_document)
+          ActionExecutor.execute_onentry_actions(["s1"], state_chart)
         end)
 
       # Should use default "anonymous_event" when event attribute is missing

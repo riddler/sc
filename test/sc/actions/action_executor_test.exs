@@ -126,53 +126,6 @@ defmodule SC.Actions.ActionExecutorTest do
     end
   end
 
-  describe "execute_onentry_actions/2 with Document (legacy API)" do
-    test "executes actions with Document for backward compatibility" do
-      xml = """
-      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
-        <state id="s1">
-          <onentry>
-            <log expr="'legacy mode'"/>
-          </onentry>
-        </state>
-      </scxml>
-      """
-
-      {:ok, document} = SCXML.parse(xml)
-      optimized_document = Document.build_lookup_maps(document)
-
-      log_output =
-        capture_log(fn ->
-          # Should not crash and should log the action
-          ActionExecutor.execute_onentry_actions(["s1"], optimized_document)
-        end)
-
-      assert log_output =~ "Log: legacy mode"
-    end
-
-    test "handles empty state list in legacy mode" do
-      xml = """
-      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
-        <state id="s1">
-          <onentry>
-            <log expr="'should not execute'"/>
-          </onentry>
-        </state>
-      </scxml>
-      """
-
-      {:ok, document} = SCXML.parse(xml)
-      optimized_document = Document.build_lookup_maps(document)
-
-      log_output =
-        capture_log(fn ->
-          ActionExecutor.execute_onentry_actions([], optimized_document)
-        end)
-
-      # No actions should execute
-      refute log_output =~ "should not execute"
-    end
-  end
 
   describe "execute_onexit_actions/2 with StateChart" do
     test "executes onexit actions correctly" do
@@ -253,29 +206,6 @@ defmodule SC.Actions.ActionExecutorTest do
     end
   end
 
-  describe "execute_onexit_actions/2 with Document (legacy API)" do
-    test "executes onexit actions in legacy mode" do
-      xml = """
-      <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
-        <state id="s1">
-          <onexit>
-            <log expr="'legacy exit'"/>
-          </onexit>
-        </state>
-      </scxml>
-      """
-
-      {:ok, document} = SCXML.parse(xml)
-      optimized_document = Document.build_lookup_maps(document)
-
-      log_output =
-        capture_log(fn ->
-          ActionExecutor.execute_onexit_actions(["s1"], optimized_document)
-        end)
-
-      assert log_output =~ "Log: legacy exit"
-    end
-  end
 
   describe "action execution with different action types" do
     test "executes log actions with various expressions" do
