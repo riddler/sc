@@ -5,8 +5,12 @@
     "test/sc/**/*_test.exs",
     "test/mix/**/*_test.exs"
   ],
-  "last_updated": "2025-08-21",
+  "last_updated": "2025-08-23",
   "scion_tests": [
+    "test/scion_tests/actionSend/send4_test.exs",
+    "test/scion_tests/actionSend/send7_test.exs",
+    "test/scion_tests/actionSend/send8_test.exs",
+    "test/scion_tests/actionSend/send9_test.exs",
     "test/scion_tests/basic/basic0_test.exs",
     "test/scion_tests/basic/basic1_test.exs",
     "test/scion_tests/basic/basic2_test.exs",
@@ -22,6 +26,7 @@
     "test/scion_tests/hierarchy/hier2_test.exs",
     "test/scion_tests/hierarchy_documentOrder/test0_test.exs",
     "test/scion_tests/hierarchy_documentOrder/test1_test.exs",
+    "test/scion_tests/misc/deep_initial_test.exs",
     "test/scion_tests/more_parallel/test0_test.exs",
     "test/scion_tests/more_parallel/test1_test.exs",
     "test/scion_tests/more_parallel/test2b_test.exs",
