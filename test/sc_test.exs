@@ -2,6 +2,8 @@ defmodule SCTest do
   use ExUnit.Case
   doctest SC
 
+  alias SC.{Configuration, Document}
+
   describe "SC.parse/1" do
     test "parses basic SCXML document successfully" do
       xml = """
@@ -12,7 +14,7 @@ defmodule SCTest do
       """
 
       assert {:ok, document} = SC.parse(xml)
-      assert %SC.Document{} = document
+      assert %Document{} = document
       assert document.name == nil
       assert document.initial == "start"
     end
@@ -101,9 +103,9 @@ defmodule SCTest do
 
       # Interpret
       assert {:ok, state_chart} = SC.interpret(document)
-      
+
       # Verify initial state is active
-      active_states = SC.Configuration.active_states(state_chart.configuration)
+      active_states = Configuration.active_states(state_chart.configuration)
       assert MapSet.member?(active_states, "idle")
     end
   end
