@@ -118,31 +118,31 @@ defmodule SC.Interpreter do
   end
 
   defp execute_microsteps(%StateChart{} = state_chart, iterations) do
-    # First, try to process any internal events (higher priority than eventless transitions)
-    {internal_event, state_chart_after_dequeue} = StateChart.dequeue_event(state_chart)
+    # Per SCXML specification: eventless transitions have higher priority than internal events
+    eventless_transitions = find_eventless_transitions(state_chart)
 
-    case internal_event do
-      %SC.Event{} = event ->
-        # Process the internal event
-        {:ok, state_chart_after_event} = send_event(state_chart_after_dequeue, event)
-        # Continue with more microsteps
-        execute_microsteps(state_chart_after_event, iterations + 1)
+    case eventless_transitions do
+      [] ->
+        # No eventless transitions, check for internal events
+        {internal_event, state_chart_after_dequeue} = StateChart.dequeue_event(state_chart)
 
-      nil ->
-        # No internal events, check for eventless transitions
-        eventless_transitions = find_eventless_transitions(state_chart)
+        case internal_event do
+          %SC.Event{} = event ->
+            # Process the internal event
+            {:ok, state_chart_after_event} = send_event(state_chart_after_dequeue, event)
+            # Continue with more microsteps
+            execute_microsteps(state_chart_after_event, iterations + 1)
 
-        case eventless_transitions do
-          [] ->
+          nil ->
             # No more eventless transitions or internal events - stable configuration reached (end of macrostep)
             state_chart
-
-          transitions ->
-            # Execute microstep with these eventless transitions
-            new_state_chart = execute_transitions(state_chart, transitions)
-            # Continue executing microsteps until stable (recursive call)
-            execute_microsteps(new_state_chart, iterations + 1)
         end
+
+      transitions ->
+        # Execute microstep with these eventless transitions (higher priority than internal events)
+        new_state_chart = execute_transitions(state_chart, transitions)
+        # Continue executing microsteps until stable (recursive call)
+        execute_microsteps(new_state_chart, iterations + 1)
     end
   end
 
