@@ -1,6 +1,7 @@
 # SCXML Test Suite Analysis Summary
 
 ## Current Status
+
 - **Total Tests**: 444 (SCION + W3C test suites)
 - **Passing**: 294 (66.2%)
 - **Failing**: 150 (33.8%)
@@ -9,6 +10,7 @@
 ## Feature Analysis Results
 
 ### Top Missing Features by Test Impact
+
 1. **onentry_actions**: 78 tests blocked - Actions executed when entering states
 2. **log_elements**: 72 tests blocked - Logging within executable content  
 3. **data_elements**: 64 tests blocked - Variable declarations in datamodel
@@ -31,16 +33,19 @@
 ### Implementation Priority
 
 **Phase 1 (High ROI)**: Basic executable content support
+
 - Target: onentry_actions, log_elements, raise_elements, onexit_actions
 - Expected unlock: ~120+ additional tests (30% improvement)
 - Complexity: Medium (2-3 weeks)
 
 **Phase 2 (Full Compliance)**: Data model implementation  
+
 - Target: datamodel, data_elements, assign_elements
 - Expected unlock: ~100+ additional tests (25% improvement)
 - Complexity: High (4-6 weeks)
 
 **Phase 3 (Polish)**: Advanced features
+
 - Target: history_states, send_elements, internal_transitions
 - Expected unlock: ~30+ remaining tests (7% improvement)  
 - Complexity: Medium (2-3 weeks)
@@ -48,7 +53,9 @@
 ## Technical Requirements
 
 ### Parser Extensions Needed
+
 Current parser must be extended to handle:
+
 ```xml
 <onentry>
   <log expr="'entering state'" />
@@ -61,13 +68,16 @@ Current parser must be extended to handle:
 ```
 
 ### Interpreter Enhancements Needed  
+
 Current interpreter must execute actions during transitions:
+
 1. Execute onexit actions of exiting states
 2. Execute transition actions  
 3. Execute onentry actions of entering states
 4. Process raised internal events in microsteps
 
 ### Architecture Changes Required
+
 - **New data structures**: Action lists in states/transitions
 - **New modules**: ActionExecutor, ExpressionEvaluator, DataModel
 - **Enhanced execution**: Action integration in transition processing
@@ -75,6 +85,7 @@ Current interpreter must execute actions during transitions:
 ## Example Test Case Analysis
 
 **Simple Raise Event Test** (`send1_test.exs`):
+
 ```xml
 <state id="a">
     <transition target="b" event="t">
@@ -87,6 +98,7 @@ Current interpreter must execute actions during transitions:
 ```
 
 **Expected Behavior**:
+
 1. Send event "t" → transition a→b
 2. Execute raise action → generate internal "s" event  
 3. Process "s" event → transition b→c
@@ -107,6 +119,7 @@ Current interpreter must execute actions during transitions:
 5. **Maintain test-driven approach**: The comprehensive test suite provides excellent validation for each implementation step
 
 ## Files Created
+
 - `/Users/johnnyt/repos/github/sc/feature_complexity_analysis.md` - Detailed feature analysis
 - `/Users/johnnyt/repos/github/sc/implementation_roadmap.md` - Technical implementation plan
 - `/Users/johnnyt/repos/github/sc/test_analysis_summary.md` - This summary document

@@ -11,17 +11,20 @@ This document outlines the comprehensive plan to achieve near-complete SCXML (St
 ## Current Test Coverage Analysis
 
 ### Test Suite Breakdown
+
 - **SCION Tests**: 127 test files from the SCION JavaScript SCXML implementation
 - **W3C SCXML Tests**: 59 test files from official W3C SCXML conformance suite
 - **Internal Tests**: 444 comprehensive unit and integration tests
 - **Regression Suite**: 63 critical tests that must always pass
 
 ### Current Status (444 Total Tests)
+
 - ✅ **294 tests passing (66.2%)** - Strong foundation with basic state machines working
 - ❌ **150 tests failing (33.8%)** - Blocked by missing executable content and data model features
 - 🔄 **34 tests in regression suite** - All basic state machine functionality validated
 
 ### Working Features (Supporting 294 Passing Tests)
+
 - ✅ Basic state transitions and event processing
 - ✅ Compound states with hierarchical entry/exit
 - ✅ Parallel states with concurrent execution
@@ -59,17 +62,20 @@ This document outlines the comprehensive plan to achieve near-complete SCXML (St
 ## Three-Phase Implementation Strategy
 
 ### Phase 1: Basic Executable Content (2-3 weeks)
+
 **Objective**: Unlock 80-100 additional tests (30% improvement)  
 **Target Coverage**: From 66% to ~85%
 
-#### Features to Implement:
+#### Features to Implement
+
 - **`<onentry>` Actions**: Execute actions when entering states
 - **`<onexit>` Actions**: Execute actions when exiting states  
 - **`<raise event="name"/>` Elements**: Generate internal events for immediate processing
 - **`<log expr="message"/>` Elements**: Debug logging with expression evaluation
 - **Action Execution Framework**: Infrastructure for processing nested executable content
 
-#### Technical Architecture:
+#### Technical Architecture
+
 ```elixir
 # Parser Extensions
 defmodule SC.Parser.SCXML.ExecutableContent do
@@ -100,24 +106,28 @@ defmodule SC.Interpreter.ActionExecutor do
 end
 ```
 
-#### Expected Outcomes:
+#### Expected Outcomes
+
 - **~374 tests passing (~84%)** - Up from 294 tests
 - **~70 tests failing** - Down from 150 tests  
 - **SCION Compatibility**: ~90% of basic SCXML functionality
 - **Regression Suite**: Expand to ~100+ validated tests
 
 ### Phase 2: Data Model & Expression Evaluation (4-6 weeks)
+
 **Objective**: Unlock 50-70 additional tests (25% improvement)  
 **Target Coverage**: From ~85% to ~95%
 
-#### Features to Implement:
+#### Features to Implement
+
 - **`<datamodel>` Structure**: Root container for state machine variables
 - **`<data id="var" expr="value"/>` Elements**: Variable declaration and initialization
 - **`<assign location="var" expr="value"/>` Actions**: Dynamic variable assignment
 - **Enhanced Expression Engine**: Full JavaScript expression evaluation with datamodel access
 - **Variable Scoping**: Proper variable lifecycle and scoping per SCXML specification
 
-#### Technical Architecture:
+#### Technical Architecture
+
 ```elixir
 # Data Model Support
 defmodule SC.DataModel do
@@ -142,24 +152,28 @@ defmodule SC.JSEngine do
 end
 ```
 
-#### Expected Outcomes:
+#### Expected Outcomes
+
 - **~420 tests passing (~95%)** - Near-complete SCXML support
 - **~24 tests failing** - Only advanced features missing
 - **W3C Compliance**: High conformance to SCXML specification  
 - **Production Ready**: Full datamodel and expression capabilities
 
 ### Phase 3: Advanced Features (2-3 weeks)  
+
 **Objective**: Achieve comprehensive SCXML support (98%+ coverage)  
 **Target Coverage**: From ~95% to ~98%+
 
-#### Features to Implement:
+#### Features to Implement
+
 - **`<history type="shallow|deep"/>` States**: State history preservation and restoration
 - **`<send event="name" target="target" delay="5s"/>` Elements**: External event sending with scheduling
 - **`<script>` Elements**: Inline JavaScript execution within states
 - **Internal Transitions**: `type="internal"` transition behavior (no state exit/entry)
 - **Targetless Transitions**: Transitions without target attribute for pure action execution
 
-#### Technical Architecture:
+#### Technical Architecture
+
 ```elixir
 # History State Support
 defmodule SC.HistoryTracker do
@@ -179,7 +193,8 @@ defmodule SC.ScriptExecutor do
 end
 ```
 
-#### Expected Outcomes:
+#### Expected Outcomes
+
 - **~440+ tests passing (~98%+)** - Comprehensive SCXML implementation
 - **<4 tests failing** - Only edge cases or specification ambiguities
 - **Industry Leading**: One of the most complete SCXML implementations available
@@ -189,12 +204,14 @@ end
 
 ### Parser Architecture Changes
 
-#### Current Parser Limitations:
+#### Current Parser Limitations
+
 - Only handles structural elements: `<scxml>`, `<state>`, `<parallel>`, `<transition>`, `<initial>`, `<data>`
 - Treats executable content as "unknown" and skips parsing
 - No support for nested action sequences
 
-#### Proposed Parser Enhancements:
+#### Proposed Parser Enhancements
+
 ```elixir
 # New executable content parsing
 def handle_start_element("onentry", attrs, state) do
@@ -212,13 +229,15 @@ end
 
 ### Interpreter Architecture Changes
 
-#### Current Interpreter Flow:
+#### Current Interpreter Flow
+
 1. Initialize configuration → Enter initial states
 2. Process event → Find enabled transitions  
 3. Execute transitions → Update configuration
 4. Execute microsteps → Return stable configuration
 
-#### Enhanced Interpreter Flow:
+#### Enhanced Interpreter Flow
+
 1. Initialize configuration → **Execute datamodel initialization** → Enter initial states → **Execute onentry actions**
 2. Process event → Find enabled transitions
 3. **Execute onexit actions** → Execute transitions → **Execute transition actions** → Update configuration → **Execute onentry actions**
@@ -280,12 +299,14 @@ end
 ## Expected Business Impact
 
 ### Technical Benefits
+
 - **Near-Complete SCXML Compliance**: Industry-leading implementation quality
 - **Production Readiness**: Full executable content and datamodel support
 - **Developer Experience**: Comprehensive state machine capabilities
 - **Test Coverage**: 98%+ validation across comprehensive test suites
 
 ### Strategic Benefits  
+
 - **Market Differentiation**: Most complete SCXML library in Elixir ecosystem
 - **Enterprise Adoption**: Full W3C compliance enables enterprise use cases
 - **Community Growth**: Comprehensive feature set attracts broader developer adoption
@@ -293,28 +314,32 @@ end
 
 ## Success Metrics
 
-### Phase 1 Success Criteria (Week 3):
+### Phase 1 Success Criteria (Week 3)
+
 - [ ] 370+ tests passing (83%+ coverage)
 - [ ] All onentry/onexit actions executing correctly
 - [ ] Internal event generation and processing working
 - [ ] Logging infrastructure operational
 - [ ] No regression in existing 294 passing tests
 
-### Phase 2 Success Criteria (Week 9):
+### Phase 2 Success Criteria (Week 9)
+
 - [ ] 415+ tests passing (93%+ coverage)  
 - [ ] Full datamodel variable storage and retrieval
 - [ ] JavaScript expression evaluation integrated
 - [ ] Variable assignment during transitions working
 - [ ] Complex SCION datamodel tests passing
 
-### Phase 3 Success Criteria (Week 12):
+### Phase 3 Success Criteria (Week 12)
+
 - [ ] 435+ tests passing (98%+ coverage)
 - [ ] History state preservation and restoration working
 - [ ] Event scheduling and delayed sending operational
 - [ ] All major SCXML features implemented
 - [ ] W3C compliance test suite passing
 
-### Final Success Criteria:
+### Final Success Criteria
+
 - [ ] **98%+ test coverage** across combined SCION + W3C + internal test suites
 - [ ] **Production-ready SCXML engine** with comprehensive feature support  
 - [ ] **Industry-leading implementation** comparable to SCION (JavaScript) quality
