@@ -223,21 +223,42 @@ defmodule SC.Parser.SCXML.StateStack do
   Handle the end of an onentry element by moving collected actions to parent state.
   """
   @spec handle_onentry_end(map()) :: {:ok, map()}
-  def handle_onentry_end(%{stack: [{_element_name, actions} | [{"state", parent_state} | rest]]} = state) do
+  def handle_onentry_end(
+        %{stack: [{_element_name, actions} | [{"state", parent_state} | rest]]} = state
+      ) do
     collected_actions = if is_list(actions), do: actions, else: []
-    updated_parent = %{parent_state | onentry_actions: parent_state.onentry_actions ++ collected_actions}
+
+    updated_parent = %{
+      parent_state
+      | onentry_actions: parent_state.onentry_actions ++ collected_actions
+    }
+
     {:ok, %{state | stack: [{"state", updated_parent} | rest]}}
   end
 
-  def handle_onentry_end(%{stack: [{_element_name, actions} | [{"final", parent_state} | rest]]} = state) do
+  def handle_onentry_end(
+        %{stack: [{_element_name, actions} | [{"final", parent_state} | rest]]} = state
+      ) do
     collected_actions = if is_list(actions), do: actions, else: []
-    updated_parent = %{parent_state | onentry_actions: parent_state.onentry_actions ++ collected_actions}
+
+    updated_parent = %{
+      parent_state
+      | onentry_actions: parent_state.onentry_actions ++ collected_actions
+    }
+
     {:ok, %{state | stack: [{"final", updated_parent} | rest]}}
   end
 
-  def handle_onentry_end(%{stack: [{_element_name, actions} | [{"parallel", parent_state} | rest]]} = state) do
+  def handle_onentry_end(
+        %{stack: [{_element_name, actions} | [{"parallel", parent_state} | rest]]} = state
+      ) do
     collected_actions = if is_list(actions), do: actions, else: []
-    updated_parent = %{parent_state | onentry_actions: parent_state.onentry_actions ++ collected_actions}
+
+    updated_parent = %{
+      parent_state
+      | onentry_actions: parent_state.onentry_actions ++ collected_actions
+    }
+
     {:ok, %{state | stack: [{"parallel", updated_parent} | rest]}}
   end
 
@@ -250,21 +271,42 @@ defmodule SC.Parser.SCXML.StateStack do
   Handle the end of an onexit element by moving collected actions to parent state.
   """
   @spec handle_onexit_end(map()) :: {:ok, map()}
-  def handle_onexit_end(%{stack: [{_element_name, actions} | [{"state", parent_state} | rest]]} = state) do
+  def handle_onexit_end(
+        %{stack: [{_element_name, actions} | [{"state", parent_state} | rest]]} = state
+      ) do
     collected_actions = if is_list(actions), do: actions, else: []
-    updated_parent = %{parent_state | onexit_actions: parent_state.onexit_actions ++ collected_actions}
+
+    updated_parent = %{
+      parent_state
+      | onexit_actions: parent_state.onexit_actions ++ collected_actions
+    }
+
     {:ok, %{state | stack: [{"state", updated_parent} | rest]}}
   end
 
-  def handle_onexit_end(%{stack: [{_element_name, actions} | [{"final", parent_state} | rest]]} = state) do
+  def handle_onexit_end(
+        %{stack: [{_element_name, actions} | [{"final", parent_state} | rest]]} = state
+      ) do
     collected_actions = if is_list(actions), do: actions, else: []
-    updated_parent = %{parent_state | onexit_actions: parent_state.onexit_actions ++ collected_actions}
+
+    updated_parent = %{
+      parent_state
+      | onexit_actions: parent_state.onexit_actions ++ collected_actions
+    }
+
     {:ok, %{state | stack: [{"final", updated_parent} | rest]}}
   end
 
-  def handle_onexit_end(%{stack: [{_element_name, actions} | [{"parallel", parent_state} | rest]]} = state) do
+  def handle_onexit_end(
+        %{stack: [{_element_name, actions} | [{"parallel", parent_state} | rest]]} = state
+      ) do
     collected_actions = if is_list(actions), do: actions, else: []
-    updated_parent = %{parent_state | onexit_actions: parent_state.onexit_actions ++ collected_actions}
+
+    updated_parent = %{
+      parent_state
+      | onexit_actions: parent_state.onexit_actions ++ collected_actions
+    }
+
     {:ok, %{state | stack: [{"parallel", updated_parent} | rest]}}
   end
 
@@ -277,24 +319,32 @@ defmodule SC.Parser.SCXML.StateStack do
   Handle the end of a log element by adding it to the parent onentry/onexit block.
   """
   @spec handle_log_end(map()) :: {:ok, map()}
-  def handle_log_end(%{stack: [{_element_name, log_action} | [{"onentry", actions} | rest]]} = state)
+  def handle_log_end(
+        %{stack: [{_element_name, log_action} | [{"onentry", actions} | rest]]} = state
+      )
       when is_list(actions) do
     updated_actions = actions ++ [log_action]
     {:ok, %{state | stack: [{"onentry", updated_actions} | rest]}}
   end
 
-  def handle_log_end(%{stack: [{_element_name, log_action} | [{"onentry", :onentry_block} | rest]]} = state) do
+  def handle_log_end(
+        %{stack: [{_element_name, log_action} | [{"onentry", :onentry_block} | rest]]} = state
+      ) do
     # First action in this onentry block
     {:ok, %{state | stack: [{"onentry", [log_action]} | rest]}}
   end
 
-  def handle_log_end(%{stack: [{_element_name, log_action} | [{"onexit", actions} | rest]]} = state)
+  def handle_log_end(
+        %{stack: [{_element_name, log_action} | [{"onexit", actions} | rest]]} = state
+      )
       when is_list(actions) do
     updated_actions = actions ++ [log_action]
     {:ok, %{state | stack: [{"onexit", updated_actions} | rest]}}
   end
 
-  def handle_log_end(%{stack: [{_element_name, log_action} | [{"onexit", :onexit_block} | rest]]} = state) do
+  def handle_log_end(
+        %{stack: [{_element_name, log_action} | [{"onexit", :onexit_block} | rest]]} = state
+      ) do
     # First action in this onexit block
     {:ok, %{state | stack: [{"onexit", [log_action]} | rest]}}
   end
@@ -308,24 +358,32 @@ defmodule SC.Parser.SCXML.StateStack do
   Handle the end of a raise element by adding it to the parent onentry/onexit block.
   """
   @spec handle_raise_end(map()) :: {:ok, map()}
-  def handle_raise_end(%{stack: [{_element_name, raise_action} | [{"onentry", actions} | rest]]} = state)
+  def handle_raise_end(
+        %{stack: [{_element_name, raise_action} | [{"onentry", actions} | rest]]} = state
+      )
       when is_list(actions) do
     updated_actions = actions ++ [raise_action]
     {:ok, %{state | stack: [{"onentry", updated_actions} | rest]}}
   end
 
-  def handle_raise_end(%{stack: [{_element_name, raise_action} | [{"onentry", :onentry_block} | rest]]} = state) do
+  def handle_raise_end(
+        %{stack: [{_element_name, raise_action} | [{"onentry", :onentry_block} | rest]]} = state
+      ) do
     # First action in this onentry block
     {:ok, %{state | stack: [{"onentry", [raise_action]} | rest]}}
   end
 
-  def handle_raise_end(%{stack: [{_element_name, raise_action} | [{"onexit", actions} | rest]]} = state)
+  def handle_raise_end(
+        %{stack: [{_element_name, raise_action} | [{"onexit", actions} | rest]]} = state
+      )
       when is_list(actions) do
     updated_actions = actions ++ [raise_action]
     {:ok, %{state | stack: [{"onexit", updated_actions} | rest]}}
   end
 
-  def handle_raise_end(%{stack: [{_element_name, raise_action} | [{"onexit", :onexit_block} | rest]]} = state) do
+  def handle_raise_end(
+        %{stack: [{_element_name, raise_action} | [{"onexit", :onexit_block} | rest]]} = state
+      ) do
     # First action in this onexit block
     {:ok, %{state | stack: [{"onexit", [raise_action]} | rest]}}
   end

@@ -19,9 +19,10 @@ defmodule SC.ActionExecutorRaiseTest do
       {:ok, document} = SCXML.parse(xml)
       optimized_document = Document.build_lookup_maps(document)
 
-      log_output = capture_log(fn ->
-        ActionExecutor.execute_onentry_actions(["s1"], optimized_document)
-      end)
+      log_output =
+        capture_log(fn ->
+          ActionExecutor.execute_onentry_actions(["s1"], optimized_document)
+        end)
 
       assert log_output =~ "Raising event 'test_event'"
       assert log_output =~ "state: s1"
@@ -42,9 +43,10 @@ defmodule SC.ActionExecutorRaiseTest do
       {:ok, document} = SCXML.parse(xml)
       optimized_document = Document.build_lookup_maps(document)
 
-      log_output = capture_log(fn ->
-        ActionExecutor.execute_onexit_actions(["s1"], optimized_document)
-      end)
+      log_output =
+        capture_log(fn ->
+          ActionExecutor.execute_onexit_actions(["s1"], optimized_document)
+        end)
 
       assert log_output =~ "Raising event 'cleanup_event'"
       assert log_output =~ "state: s1"
@@ -67,14 +69,21 @@ defmodule SC.ActionExecutorRaiseTest do
       {:ok, document} = SCXML.parse(xml)
       optimized_document = Document.build_lookup_maps(document)
 
-      log_output = capture_log(fn ->
-        ActionExecutor.execute_onentry_actions(["s1"], optimized_document)
-      end)
+      log_output =
+        capture_log(fn ->
+          ActionExecutor.execute_onentry_actions(["s1"], optimized_document)
+        end)
 
       # Verify the order of execution by finding the positions
-      before_pos = String.split(log_output, "\n") |> Enum.find_index(&String.contains?(&1, "before raise"))
-      raise_pos = String.split(log_output, "\n") |> Enum.find_index(&String.contains?(&1, "Raising event 'middle_event'"))
-      after_pos = String.split(log_output, "\n") |> Enum.find_index(&String.contains?(&1, "after raise"))
+      before_pos =
+        String.split(log_output, "\n") |> Enum.find_index(&String.contains?(&1, "before raise"))
+
+      raise_pos =
+        String.split(log_output, "\n")
+        |> Enum.find_index(&String.contains?(&1, "Raising event 'middle_event'"))
+
+      after_pos =
+        String.split(log_output, "\n") |> Enum.find_index(&String.contains?(&1, "after raise"))
 
       # All should be found and in correct order
       assert before_pos != nil
@@ -98,9 +107,10 @@ defmodule SC.ActionExecutorRaiseTest do
       {:ok, document} = SCXML.parse(xml)
       optimized_document = Document.build_lookup_maps(document)
 
-      log_output = capture_log(fn ->
-        ActionExecutor.execute_onentry_actions(["s1"], optimized_document)
-      end)
+      log_output =
+        capture_log(fn ->
+          ActionExecutor.execute_onentry_actions(["s1"], optimized_document)
+        end)
 
       # Should use default "anonymous_event" when event attribute is missing
       assert log_output =~ "Raising event 'anonymous_event'"
