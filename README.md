@@ -1,14 +1,27 @@
-# SC - StateCharts for Elixir
+# ⚠️ DEPRECATED: SC - StateCharts for Elixir
+
+> **This project has been renamed to [Statifier](https://github.com/riddler/statifier)**
+> All active development continues at **<https://github.com/riddler/statifier>**
+> Please migrate to `{:statifier, "~> 1.1"}` for ongoing updates and support.
 
 [![CI](https://github.com/riddler/sc/workflows/CI/badge.svg?branch=main)](https://github.com/riddler/sc/actions)
 [![Coverage](https://codecov.io/gh/riddler/sc/branch/main/graph/badge.svg)](https://codecov.io/gh/riddler/sc)
+
+---
+
+**⚠️ MIGRATION NOTICE**: This SC project has been renamed to **[Statifier](https://github.com/riddler/statifier)** for better discoverability and communication. All modules have been renamed from `SC.*` to `Statifier.*`.
+
+**New Repository**: <https://github.com/riddler/statifier>
+**New Hex Package**: `{:statifier, "~> 1.1"}`
+
+---
 
 An Elixir implementation of SCXML (State Chart XML) state charts with a focus on W3C compliance.
 
 ## Features
 
 - ✅ **Complete SCXML Parser** - Converts XML documents to structured data with precise location tracking
-- ✅ **State Chart Interpreter** - Runtime engine for executing SCXML state charts  
+- ✅ **State Chart Interpreter** - Runtime engine for executing SCXML state charts
 - ✅ **Modular Validation** - Document validation with focused sub-validators for maintainability
 - ✅ **Compound States** - Support for hierarchical states with automatic initial child entry
 - ✅ **Initial State Elements** - Full support for `<initial>` elements with transitions (W3C compliant)
@@ -32,7 +45,7 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 ### Working Features
 
 - ✅ **Basic state transitions** and event-driven changes
-- ✅ **Hierarchical states** with optimized O(1) state lookup and automatic initial child entry  
+- ✅ **Hierarchical states** with optimized O(1) state lookup and automatic initial child entry
 - ✅ **Initial state elements** - Full `<initial>` element support with transitions and comprehensive validation
 - ✅ **Parallel states** with concurrent execution of multiple regions and proper cross-boundary exit semantics
 - ✅ **Eventless transitions** - Automatic transitions without event attributes (also called NULL transitions in SCXML spec), with cycle detection and microstep processing
@@ -72,7 +85,7 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 ### **✅ Enhanced Parallel State Support**
 
 - **`Cross-Parallel Boundaries`** - Proper exit semantics when transitions leave parallel regions
-- **`Sibling State Management`** - Automatic exit of parallel siblings when transitions exit their shared parent  
+- **`Sibling State Management`** - Automatic exit of parallel siblings when transitions exit their shared parent
 - **`Self-Transitions`** - Transitions within parallel regions preserve unaffected parallel regions
 - **`SCION Compatibility`** - All 4 `cond_js` tests now pass, 6 parallel interrupt tests fixed
 - **`Regression Prevention`** - 62 regression tests now validate all critical functionality
@@ -80,7 +93,7 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 ### **✅ Feature-Based Test Validation System**
 
 - **`SC.FeatureDetector`** - Analyzes SCXML documents to detect used features
-- **Feature validation** - Tests fail when they depend on unsupported features  
+- **Feature validation** - Tests fail when they depend on unsupported features
 - **False positive prevention** - No more "passing" tests that silently ignore unsupported features
 - **Capability tracking** - Clear visibility into which SCXML features are supported
 
@@ -88,7 +101,7 @@ An Elixir implementation of SCXML (State Chart XML) state charts with a focus on
 
 - **`SC.Validator`** - Main orchestrator (from 386-line monolith)
 - **`SC.Validator.StateValidator`** - State ID validation
-- **`SC.Validator.TransitionValidator`** - Transition target validation  
+- **`SC.Validator.TransitionValidator`** - Transition target validation
 - **`SC.Validator.InitialStateValidator`** - All initial state constraints
 - **`SC.Validator.ReachabilityAnalyzer`** - State reachability analysis
 - **`SC.Validator.Utils`** - Shared utilities
@@ -110,23 +123,38 @@ The next major areas for development focus on expanding SCXML feature support:
 - **Datamodel Support** - `<data>` elements with expression evaluation
 - **History States** - Shallow and deep history state support
 
-### **Medium Priority Features**  
+### **Medium Priority Features**
 
 - **Internal Transitions** - `type="internal"` transition support
 - **Targetless Transitions** - Transitions without target for pure actions
 - **Enhanced Error Handling** - Better error messages with source locations
 - **Performance Benchmarking** - Establish performance baselines and optimize hot paths
 
-## Installation
+## ⚠️ Deprecated Installation (Use Statifier Instead)
 
-Add `sc` to your list of dependencies in `mix.exs`:
+**⚠️ DO NOT USE**: This package is deprecated. Use the new `statifier` package instead:
 
 ```elixir
 def deps do
   [
-    {:sc, "~> 1.0.0"}
+    {:statifier, "~> 1.1"}  # ✅ USE THIS
+    # {:sc, "~> 1.0.0"}      # ❌ DEPRECATED
   ]
 end
+```
+
+**Migration Guide**: Simply replace `SC.` with `Statifier.` in your code:
+
+```elixir
+# Old (deprecated)
+{:ok, document} = SC.parse(xml)
+{:ok, state_chart} = SC.interpret(document)
+active_states = SC.Interpreter.active_states(state_chart)
+
+# New (current)
+{:ok, document} = Statifier.parse(xml)
+{:ok, state_chart} = Statifier.interpret(document)
+active_states = Statifier.Interpreter.active_states(state_chart)
 ```
 
 ## Usage
@@ -227,7 +255,7 @@ active_states = SC.Interpreter.active_states(state_chart)
 {:ok, document} = SC.parse(xml)
 
 case SC..validate(document) do
-  {:ok, optimized_document, warnings} -> 
+  {:ok, optimized_document, warnings} ->
     # Document is valid and optimized, warnings are non-fatal
     IO.puts("Valid document with #{length(warnings)} warnings")
     # optimized_document now has O(1) lookup maps built
@@ -253,7 +281,7 @@ xml = """
     </onentry>
     <transition target="working"/>
   </state>
-  
+
   <state id="working">
     <onentry>
       <assign location="counter" expr="counter + 1"/>
@@ -264,7 +292,7 @@ xml = """
     </onexit>
     <transition event="finish" target="done"/>
   </state>
-  
+
   <final id="done"/>
 </scxml>
 """
@@ -375,7 +403,7 @@ mix test test/sc/parser/scxml_test.exs
 # 1. Parse: XML → Document structure
 {:ok, document} = SC.parse(xml)
 
-# 2. Validate: Check semantics + optimize with lookup maps  
+# 2. Validate: Check semantics + optimize with lookup maps
 {:ok, optimized_document, warnings} = SC..validate(document)
 
 # 3. Interpret: Run state chart with optimized lookups
@@ -389,7 +417,7 @@ The implementation includes several key optimizations for production use:
 ### **O(1) State and Transition Lookups**
 
 - **State Lookup Map**: `%{state_id => state}` for instant state access
-- **Transition Lookup Map**: `%{state_id => [transitions]}` for fast transition queries  
+- **Transition Lookup Map**: `%{state_id => [transitions]}` for fast transition queries
 - **Built During Validation**: Lookup maps only created for valid documents
 - **Memory Efficient**: Uses existing document structure, no duplication
 
@@ -402,7 +430,7 @@ active_states = SC.Interpreter.active_states(state_chart)
 # Returns only leaf states (compound/parallel states entered automatically)
 
 # Fast ancestor computation when needed
-ancestors = SC.Interpreter.active_ancestors(state_chart) 
+ancestors = SC.Interpreter.active_ancestors(state_chart)
 # O(1) state lookups + O(d) ancestor traversal
 
 # Parallel states enter ALL child regions simultaneously
@@ -418,7 +446,7 @@ ancestors = SC.Interpreter.active_ancestors(state_chart)
 **Performance Impact:**
 
 - O(1) vs O(n) state lookups during interpretation
-- O(1) vs O(n) transition queries for event processing  
+- O(1) vs O(n) transition queries for event processing
 - Source field optimization eliminates expensive lookups during event processing
 - Critical for responsive event processing in complex state charts
 
