@@ -2,8 +2,8 @@ defmodule SC.MixProject do
   use Mix.Project
 
   @app :sc
-  @version "1.0.0"
-  @description "StateCharts for Elixir"
+  @version "1.0.1"
+  @description "[DEPRECATED] Use 'statifier' package instead: https://github.com/riddler/statifier"
   @source_url "https://github.com/riddler/sc"
   @deps [
     # Documentation (split out to reduce compile time in dev/test)
@@ -32,6 +32,10 @@ defmodule SC.MixProject do
       docs: docs(),
       description: @description,
       package: package(),
+      deprecated: [
+        reason: "Package renamed to 'statifier'. Use {:statifier, \"~> 1.1\"} instead.",
+        replacement: :statifier
+      ],
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,

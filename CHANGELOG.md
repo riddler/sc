@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ⚠️ DEPRECATED
+
+**This `sc` package has been renamed to `statifier`**
+
+- **Migration Required**: All users must migrate to the new `statifier` package
+- **Repository**: <https://github.com/riddler/statifier>
+- **Hex Package**: `{:statifier, "~> 1.1"}`
+- **Code Changes**: Replace all `SC.` references with `Statifier.`
+- **Deprecation Warnings**: All public functions now emit deprecation warnings
+- **No New Features**: All future development continues in the `statifier` package
+
 ### Added
 
 #### Phase 1 Enhanced Expression Evaluation
@@ -209,7 +220,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### ActionExecutor API Modernization
 
 - **REMOVED**: `SC.Actions.ActionExecutor.execute_onentry_actions/2` function clause that accepted `%Document{}` as second parameter
-- **REMOVED**: `SC.Actions.ActionExecutor.execute_onexit_actions/2` function clause that accepted `%Document{}` as second parameter  
+- **REMOVED**: `SC.Actions.ActionExecutor.execute_onexit_actions/2` function clause that accepted `%Document{}` as second parameter
 - **BREAKING**: These functions now only accept `%StateChart{}` as the second parameter for proper event queue integration
 - **Migration**: Replace `ActionExecutor.execute_*_actions(states, document)` with `ActionExecutor.execute_*_actions(states, state_chart)`
 - **Benefit**: Action execution now properly integrates with the StateChart event queue system, enabling raised events to be processed correctly
