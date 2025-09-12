@@ -2,24 +2,10 @@ defmodule SC.MixProject do
   use Mix.Project
 
   @app :sc
-  @version "1.0.1"
+  @version "1.0.2"
   @description "[DEPRECATED] Use 'statifier' package instead: https://github.com/riddler/statifier"
   @source_url "https://github.com/riddler/sc"
-  @deps [
-    # Documentation (split out to reduce compile time in dev/test)
-    {:ex_doc, "~> 0.31", only: :docs, runtime: false},
-
-    # Development, Test, Local
-    {:castore, "~> 1.0", only: [:dev, :test]},
-    {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-    {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-    {:excoveralls, "~> 0.18", only: :test},
-    {:jason, "~> 1.4", only: [:dev, :test]},
-
-    # Runtime
-    {:predicator, "~> 3.0"},
-    {:saxy, "~> 1.6"}
-  ]
+  @deps []
 
   def project do
     [
@@ -33,24 +19,8 @@ defmodule SC.MixProject do
       description: @description,
       package: package(),
       deprecated: [
-        reason: "Package renamed to 'statifier'. Use {:statifier, \"~> 1.1\"} instead.",
+        reason: "Package renamed to 'statifier'. Use {:statifier, \"~> 1.9\"} instead.",
         replacement: :statifier
-      ],
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.post": :test,
-        "coveralls.html": :test,
-        "coveralls.json": :test,
-        "coveralls.cobertura": :test,
-        "coveralls.github": :test,
-        docs: :docs
-      ],
-      dialyzer: [
-        plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
-        plt_add_apps: [:mix, :ex_unit],
-        warnings: [:unknown]
       ]
     ]
   end
@@ -77,7 +47,7 @@ defmodule SC.MixProject do
       source_ref: "v#{@version}",
       canonical: "https://hexdocs.pm/sc",
       source_url: @source_url,
-      extras: ["README.md", "CHANGELOG.md", "LICENSE"],
+      extras: ["README.md", "LICENSE"],
       main: "readme"
     ]
   end
